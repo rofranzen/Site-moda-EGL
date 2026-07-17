@@ -46,6 +46,8 @@ CREATE TABLE anuncios(
 	preco DECIMAL(5,2) NOT NULL,
 	descricao TEXT,
 
+	usuario INTEGER NOT NULL,
+
 	tamanho INTEGER REFERENCES tamanhos(tam_id),
 	peca INTEGER REFERENCES pecas(peca_id),
 	marca INTEGER REFERENCES marcas(marca_id)
