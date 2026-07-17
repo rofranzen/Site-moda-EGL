@@ -101,7 +101,8 @@ def submit():
         user = User.from_username(username,password)
         if user:
             login_user(user)
-            return redirect(url_for('logged'))
+            #return redirect(url_for('logged'))
+            return redirect(url_for('index'))
     return redirect(url_for('login_page'))
 
 @app.route('/logged')
