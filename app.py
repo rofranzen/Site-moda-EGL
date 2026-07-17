@@ -6,24 +6,56 @@ from flask_login import UserMixin
 from flask_wtf import FlaskForm
 from wtforms import *
 from wtforms.validators import *
+import psycopg2
 
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
 app.config["SECRET_KEY"] = "lolita"
 # CHANGE LATER, VERY SECRET!
 
-# ----- DB FALSO -----#
 
 users_db = {
     "1": {
         "username": "aaa",
         "pw": "aaa"
     },
-    "2": {
-        "username": "bbb",
-        "pw": "aaa"
-    }
-}
+cur = conn.cursor()
+
+def make_sql(atribute,table):
+    query = 'SELECT ' + atribute + ' FROM '+ table+ ';'
+    print(query)
+    cur.execute(query)
+    title = [desc[0] for desc in cur.description]
+    # Turns to list of tuples
+    rows =  [tuple(title)] + cur.fetchall()
+
+    '''for row in rows:
+        print(row)'''
+    return rows
+
+
+rows = make_sql('*', "users")
+
+# Temp dictionary since the rest is using dictionary
+users_db ={}
+# dictionary keys
+titles = rows[0][1:]
+rows = rows[1:]
+
+for i in range(len(rows)):
+    row = rows[i]
+    index = row[0]
+    row = row[1:]
+    new_dictionary = {}
+
+    for j in range(len(row)):
+        new_dictionary[titles[j]] = row[j]
+
+    users_db[row[0]] = new_dictionary
+
+# Preciso fazer isso ficar seguro depois. e se eu fizer uma query select where
+# user == esse e pw == esse
+# ai se não vier nada esta errado obviamente, e não revelaria as senhas.
 
 # ----- USER CLASS ----- #
 class User(UserMixin):
@@ -74,10 +106,17 @@ class LoginForm(FlaskForm):
     pw = PasswordField("Senha", validators=[DataRequired()])
     submit = SubmitField("Entrar")
 
-# ------------------ #
+# ----------------- #
+#       ROUTES      #
+# ----------------- #
+
+
+# ----- LOGIN ----- #
 
 @app.route("/login", methods=['GET','POST'])
 def login_page():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     return render_template('login.html',form=LoginForm())
 
 @app.route("/logintest", methods=['GET','POST'])
@@ -85,7 +124,6 @@ def login_test():
     return render_template('logintestold.html', form=LoginForm())
 
 @app.route('/')
-@app.route('/<name>')
 def index(name=None):
     if current_user.is_authenticated:
         name = current_user.username

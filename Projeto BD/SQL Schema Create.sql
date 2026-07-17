@@ -8,6 +8,7 @@ CREATE TABLE users(
 	user_id SERIAL PRIMARY KEY,
 	username VARCHAR(50) UNIQUE NOT NULL,
 	pw VARCHAR(50) NOT NULL,
+	contato VARCHAR(20) NOT NULL,
 	estado_sigla CHAR(2) REFERENCES estados(sigla)
 );
 
@@ -18,22 +19,26 @@ CREATE TABLE tamanhos(
 
 CREATE TABLE pecas(
 	peca_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL
+	nome VARCHAR(20) UNIQUE NOT NULL,
+	description TEXT
 );
 
 CREATE TABLE marcas(
 	marca_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL
+	nome VARCHAR(20) UNIQUE NOT NULL,
+	description TEXT
 );
 
 CREATE TABLE estilos(
 	estilo_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL
+	nome VARCHAR(20) UNIQUE NOT NULL,
+	description TEXT
 );
 
 CREATE TABLE tags(
 	tag_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL
+	nome VARCHAR(20) UNIQUE NOT NULL,
+	description TEXT
 );
 
 CREATE TABLE anuncios(
