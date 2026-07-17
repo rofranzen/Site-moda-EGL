@@ -25,10 +25,17 @@
 
         <div class="column">
             
-            
+            {% if is_logged %}
+            <a href="{{ url_for('logout') }}">
+                <button class="button">{{person}} - Logout</button>
+            </a>
+
+            {% else %}
             <a href="{{ url_for('login_page') }}">
                 <button class="button">Login</button>
             </a>
+            {% endif %}
+            
 
 
         </div>
