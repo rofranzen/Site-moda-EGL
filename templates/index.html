@@ -1,0 +1,97 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Elegantes Goticas Lolitas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+</head>
+<body>
+
+
+{% extends "layout.html" %}
+{% block content %}
+
+{% if person %}
+    <p>Bem-vinde, {{ person }}. Sua conta está aprovada. </p>
+{% else %}
+    <p>Você precisa logar para ter acesso a todas as funcionalidades..</p>
+{% endif %}
+
+<section class="section">
+    
+    <div class="block">
+        <div class="box">
+            <p><strong>O quê é EGL?</strong> Elegante, Gótica e Lolita, originalmente dos termos em inglês, é um estilo de moda alternativo que começou no Japão.</p>
+            
+            <p> Na verdade, aceitamos qualquer J-fashion (moda japonesa), como itens:</p>
+
+            <br>
+
+            <div class="columns">
+                
+                <div class="column"></div>
+
+                <div class="column is-one-fifth">
+                    <div class="content">
+                        <ul>
+                            <li>Lolita</li>
+                            <li>Gyaru</li>
+                            <li>Ouji</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="column is-one-fifth">
+                    <div class="content">
+                        <ul>
+                            <li>Góticos</li>
+                            <li>Jirai Kei</li>
+                            <li>Bonecos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="column is-one-fifth">
+                    <div class="content">
+                        <ul>
+                            <li>J-Punk</li>
+                            <li>Kawaii</li>
+                            <li>Fairy Kei</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="column is-one-fifth">
+                    <div class="content">
+                        <ul>
+                            <li>Decora</li>
+                            <li>Vkei</li>
+                            <li>E muitos outros...</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="column"></div>
+
+            </div>
+
+        </div>
+    </div>
+
+    {% if person %}
+        <p>Bem-vinde, {{ person }}.</p>
+    {% else %}
+        <p>Bem-vinde, amigue.</p>
+    {% endif %}
+
+    <a href="https://dustmagazine.com/a-manifesto-for-building-alternative-fashion-networks/">Lolita Manifesto</a>
+
+
+    <img src="/static/Gothic_Lolita_002.jpg" alt="Roupas de lolita gótica em uma vitrine.">
+    
+</section>
+
+{% endblock %}
+
+</body>
+</html>

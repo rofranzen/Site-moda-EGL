@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Login Elegantes Goticas Lolitas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+</head>
+<body>
+
+{% extends "layout.html" %}
+{% block content %}
+
+<form class="box" method="POST" action="/passing">
+    {{ form.hidden_tag() }}
+    <div class="field">
+        {{ form.username.label(class="label") }}
+        <div class="control">
+            {{ form.username(class="input", placeholder="Ex. GothicMaria") }}
+        </div>
+    </div>
+
+    <div class="field">
+        {{ form.pw.label(class="label") }}
+        <div class="control">
+            {{ form.pw(class="input", placeholder="********") }}
+        </div>
+    </div>
+
+    <div class="control">
+        {{ form.submit(class="button is-primary") }}
+    </div>
+</form>
+
+{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<p class="pt-3 has-text-light"></p>
+
+<div class="container block">
+    <div class="columns is-vcentered">
+        <div class="column is-three-fifths">
+    
+            <h1 class="title">Elegantes Goticas Lolitas</h1>
+            <p class="subtitle">Site de anúncios de <strong>moda EGL!</strong></p>
+        
+        </div>
+
+        <div class="column">
+
+            <a href="{{ url_for('index') }}">
+                <button class="button">Início</button>
+            </a>
+        </div>
+
+        <div class="column">
+
+            <a href="{{ url_for('login_test') }}">
+                <button class="button">Anúncios</button>
+            </a>
+        </div>
+
+        <div class="column">
+            
+            
+            <a href="{{ url_for('login_page') }}">
+                <button class="button">Login</button>
+            </a>
+
+
+        </div>
+    </div>
+</div>
+
+{% block content %}
+{% endblock %}
+
+<p class="has-text-centered">
+    Este é um site <strong>sem fins lucrativos</strong> sustentado pelo próprio dono.
+    <br>
+
+    O site não toma responsabilidade por qualquer problema que possa ocorrer fora dele.
+</p>
+
+<p class="pb-5 has-text-light"></p>
