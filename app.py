@@ -34,6 +34,8 @@ import pandas as pd
     * Mostrar foto principal no card.
     * Avisar que primeira foto será a foto principal do card.
     * Várias páginas de busca (escolher pag 1, 2, 3) e o link mudar. site/filtros/condicao=tal/2
+    * Add nos dominios reais
+    * botar servidor p rodar em pc
 
     
     * Adicionar campo "cores" e "padroes" tlvz? segunda versão do site.
@@ -52,6 +54,7 @@ JA IMPLEMENTADO
     * Db projetado
     * Listas base de tags e estilos e peças
     * Logout
+    * Query de busca
 
 '''
 
