@@ -1,0 +1,7 @@
+"Bodyline" "False"
+"Angelic Pretty" "False"
+"Metamorphose" "False"
+"Lis Liza" "False"
+"Doki Doki Princess" "True"
+"Le Carrousel" "True"
+

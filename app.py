@@ -13,16 +13,23 @@ app = Flask(__name__,static_url_path='/static')
 app.config["SECRET_KEY"] = "lolita"
 # CHANGE LATER, VERY SECRET!
 
+# ----- CONEXÃO PSYCOPG -----#
+import psycopg2
+try:
+    conn = psycopg2.connect(dbname='postgres', user='postgres', host='localhost', port=5432, password='postgres')
+    print("Connection succesful")
+except Exception as e:
+    print("I am unable to connect to the database", e)
 
-users_db = {
-    "1": {
-        "username": "aaa",
-        "pw": "aaa"
-    },
 cur = conn.cursor()
 
-def make_sql(atribute,table):
-    query = 'SELECT ' + atribute + ' FROM '+ table+ ';'
+def make_sql(col,table,cond=None):
+    query = 'SELECT ' + col + ' FROM '+ table
+
+    if cond:
+        query += ' WHERE ' + cond
+    query += ';'
+
     print(query)
     cur.execute(query)
     title = [desc[0] for desc in cur.description]
@@ -34,7 +41,7 @@ def make_sql(atribute,table):
     return rows
 
 
-rows = make_sql('*', "users")
+rows = make_sql(col='*', table="users")
 
 # Temp dictionary since the rest is using dictionary
 users_db ={}
@@ -57,11 +64,20 @@ for i in range(len(rows)):
 # user == esse e pw == esse
 # ai se não vier nada esta errado obviamente, e não revelaria as senhas.
 
+# ----- DB  QUERY EXAMPLE ----- #
+'''
+col = "*"
+table = "anuncios"
+cond = "preco > 20"
+results = make_sql(col=col,table=table, cond=cond) #SELECT a FROM b;
+
+print("All anuncios:",results[1:])'''
+
 # ----- USER CLASS ----- #
 class User(UserMixin):
     def __init__(self, id, username):
         self.id = id
-        self.username = username
+        self.name = username
     
     name = None
 
@@ -98,7 +114,13 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.get(user_id)
 
+# ----- FUNCTION WRAPPER ----- #
 
+def render_template_w(link):
+    if current_user.is_authenticated:
+        return render_template(link, person=current_user.name,is_logged=current_user.is_authenticated)
+    else:
+        return render_template(link, is_logged=current_user.is_authenticated)
 
 # ----- FORMS ----- #
 class LoginForm(FlaskForm):
@@ -106,10 +128,10 @@ class LoginForm(FlaskForm):
     pw = PasswordField("Senha", validators=[DataRequired()])
     submit = SubmitField("Entrar")
 
+
 # ----------------- #
 #       ROUTES      #
 # ----------------- #
-
 
 # ----- LOGIN ----- #
 
@@ -125,9 +147,7 @@ def login_test():
 
 @app.route('/')
 def index(name=None):
-    if current_user.is_authenticated:
-        name = current_user.username
-    return render_template('index.html', person=name,is_logged=current_user.is_authenticated)
+    return render_template_w('index.html')
 
 @app.route('/passing', methods=['GET', 'POST'])
 def submit():
