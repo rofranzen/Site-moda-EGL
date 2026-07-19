@@ -9,8 +9,35 @@ from wtforms.validators import *
 import psycopg2
 import pandas as pd
 
-# ----- TEMP EQUIVALENCIES ----- #
+# -----------------
+# LISTA DE AFAZERES
+# -----------------
+'''
+    * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
+    * Ver um login seguro
+    * Forms de criar usuário
+    * forms criar usuario precisa inserir usuario desativado
+    * Mudar o BD para as especificacoes novas do arquivo sql
+    * Populador do BD automatico para qnd precisar reiniciar
+    * Fazer forms de criar venda funcionar
+    * Mudar preco no db para ser integer, nao quero gente fazendo 0.99 nos preços.
 
+
+    * Ver como ver cpf na receita federal (manual), lembrar de falar que o site NUNCA usará seus dados nem nome e só vai ser visto manualmente
+    * Lembrar usuario que é um site pequeno mal feito logo precisa ser uma senha diferente pois é vuneravel
+    * Chamar 3 pessoas e fazer primeiras vendas p/ atrair pessoas.
+
+
+'''
+
+# ----- TEMP EQUIVALENCIES ----- #
+a = "1"
+b = "2"
+lista_tam = [a,b]
+lista_estilos = [a,b]
+lista_tags = ["pasteis","monocromatico"]
+lista_pecas = [a,b]
+lista_marcas = ["bodyline","lisliza"]
 
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
@@ -27,15 +54,20 @@ except Exception as e:
 
 cur = conn.cursor()
 
-def make_sql(col,table,cond=None):
+# ----- DB QUERY QUESTION ----- #
+def make_sql(col,table,cond=None,join=None, test=False):
     query = 'SELECT ' + col + ' FROM '+ table
+
+    '''if join:
+        query += '''''
 
     if cond:
         query += ' WHERE ' + cond
     query += ';'
 
-    '''print("A query pedida:")
-    print(query)'''
+    if test:
+        print("A query pedida:")
+        print(query)
     cur.execute(query)
     title = [desc[0] for desc in cur.description]
     # Turns to list of tuples
@@ -43,32 +75,67 @@ def make_sql(col,table,cond=None):
 
     '''for row in rows:
         print(row)'''
+    
+    if test:
+        print("Acabou a query! Agora iremos df")
     return rows
 
 # Dataframe from sql query
-def sql_df(col,table,cond=None):
+def sql_df(col,table,cond=None, join=None, test =False):
 
-    query_res = make_sql(col,table,cond)
+    if test:
+        print("Começamos sql_df")
+
+    query_res = make_sql(col=col,table=table,cond=cond,join=join,test=test)
     data = query_res[1:]
     header = query_res[0]
 
-    table_id = table[:-1] + '_id'
+
+    if test:
+        print("Vamos transformar em df:")
 
     df = pd.DataFrame(data)
+
+    if test:
+        print("\nSucesso! agora é um df.")
+
+    if ',' in table:
+        table_id = table[:table.index(',')-1] + '_id'
+    else:
+        table_id = table[:-1] + '_id'
+
     df.columns = header
+
+    if test:
+        print(df.columns)
+        print("My table id ", table_id)
+
     df.set_index(table_id,inplace=True)
-    '''print("This is the requested df")
-    print(df)'''
+
+    if test:
+        print("This is the requested df")
+        print(df)
     return df
 
-# ----- DB  QUERY EXAMPLE ----- #
-'''
-col = "*"
-table = "anuncios"
-cond = "preco > 20"
-results = make_sql(col=col,table=table, cond=cond) #SELECT a FROM b;
 
-print("All anuncios:",results[1:])'''
+# ----- DB  QUERY INSERT ----- #
+
+# INSERT INTO users (id,name,contact) VALUES (id_value,name_value,contact_value...)
+
+def insert(table,values,test=False):
+    # %% atualizar depois, devo fazer um dicionario para que os valores nao troquem de lugar.
+    # Ex: recebe dicionario com keys do campo a inserir...
+
+    query = 'INSERT INTO ' + table + ' VALUES ('+ values + ');'
+
+    if test:
+        print("A query pedida:")
+        print(query)
+
+    cur.execute(query)
+
+    if test:
+        print("Acabou o insert! Deu tudo certo.")
 
 # ----- USER CLASS ----- #
 class User(UserMixin):
@@ -119,13 +186,13 @@ def load_user(user_id):
 
 # ----- FUNCTION WRAPPER ----- #
 
-def render_template_w(link, df=None):
+def render_template_w(link, df_header=None, df_values=None):
     # df é um dataframe recebido pela pagina.
     # Devemos tomar cuidado com qual dataframe é pareado com qual página!
     if current_user.is_authenticated:
-        return render_template(link, df=df, person=current_user.name,is_logged=current_user.is_authenticated)
+        return render_template(link, header=df_header, values=df_values, person=current_user.name,is_logged=current_user.is_authenticated)
     else:
-        return render_template(link, df=df, is_logged=current_user.is_authenticated)
+        return render_template(link, header=df_header, values=df_values, is_logged=current_user.is_authenticated)
 
 
 # ----- FORMS ----- #
@@ -133,6 +200,31 @@ class LoginForm(FlaskForm):
     username = StringField("Nome de usuário", validators=[DataRequired()])
     pw = PasswordField("Senha", validators=[DataRequired()])
     submit = SubmitField("Entrar")
+
+# Import dos docs de wtfforms
+class MultiCheckboxField(SelectMultipleField):
+    """
+    A multiple-select, except displays a list of checkboxes.
+
+    Iterating the field will produce subfields, allowing custom rendering of
+    the enclosed checkbox fields.
+    """
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
+class CreateSaleForm(FlaskForm):
+    nome = StringField("Nome do produto", validators=[DataRequired()])
+    trocas = BooleanField("Aceita trocas?",validators=[DataRequired()])
+    defeito = BooleanField("Produto com defeito?",validators=[DataRequired()])
+    preco = IntegerField("Preço (Número inteiro)",validators=[DataRequired()])
+    descricao = TextAreaField("Descrição",validators=[DataRequired()])
+    tamanho = SelectField("Tamanho", choices=lista_tam)
+    peca = SelectField("Peça", choices=lista_pecas)
+    marca = SelectField("Marca", choices=lista_marcas)
+    estilos = MultiCheckboxField("Estilos", choices=lista_estilos)
+    tags = MultiCheckboxField("Tags", choices=lista_tags)
+
+    submit = SubmitField("Criar venda")
 
 
 # ----------------- #
@@ -191,13 +283,20 @@ def anuncios():
     link = "anuncios.html"
 
     # Query de todos os anuncios
-    col = "*"
-    table = "anuncios"
-    cond = ''
-    results = make_sql(col=col,table=table, cond=cond) #SELECT a FROM b;
+    col = "anuncios.anuncio_id,anuncios.nome,anuncios.preco,users.username"
+    table = "anuncios, users"
+    cond = 'anuncios.usuario = users.user_id'
+    #print("antes d anuncios")
+    results = sql_df(col=col,table=table, cond=cond) #SELECT a FROM b;
     print("All anuncios:", results)
+    #print("all columns", results.columns)
 
-    return render_template_w('anuncios.html', df=results,is_logged=current_user.is_authenticated)
+    return render_template_w('anuncios.html', df_header=results.columns, df_values=results.values)
+
+@app.route("/criar_anuncio")
+@login_required
+def criar_anuncio():
+    return render_template('criar_anuncio.html',form=CreateSaleForm())
 
 '''@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
