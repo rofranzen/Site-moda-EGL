@@ -7,6 +7,10 @@ from flask_wtf import FlaskForm
 from wtforms import *
 from wtforms.validators import *
 import psycopg2
+import pandas as pd
+
+# ----- TEMP EQUIVALENCIES ----- #
+
 
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
@@ -30,7 +34,8 @@ def make_sql(col,table,cond=None):
         query += ' WHERE ' + cond
     query += ';'
 
-    print(query)
+    '''print("A query pedida:")
+    print(query)'''
     cur.execute(query)
     title = [desc[0] for desc in cur.description]
     # Turns to list of tuples
@@ -40,29 +45,21 @@ def make_sql(col,table,cond=None):
         print(row)'''
     return rows
 
+# Dataframe from sql query
+def sql_df(col,table,cond=None):
 
-rows = make_sql(col='*', table="users")
+    query_res = make_sql(col,table,cond)
+    data = query_res[1:]
+    header = query_res[0]
 
-# Temp dictionary since the rest is using dictionary
-users_db ={}
-# dictionary keys
-titles = rows[0][1:]
-rows = rows[1:]
+    table_id = table[:-1] + '_id'
 
-for i in range(len(rows)):
-    row = rows[i]
-    index = row[0]
-    row = row[1:]
-    new_dictionary = {}
-
-    for j in range(len(row)):
-        new_dictionary[titles[j]] = row[j]
-
-    users_db[row[0]] = new_dictionary
-
-# Preciso fazer isso ficar seguro depois. e se eu fizer uma query select where
-# user == esse e pw == esse
-# ai se não vier nada esta errado obviamente, e não revelaria as senhas.
+    df = pd.DataFrame(data)
+    df.columns = header
+    df.set_index(table_id,inplace=True)
+    '''print("This is the requested df")
+    print(df)'''
+    return df
 
 # ----- DB  QUERY EXAMPLE ----- #
 '''
@@ -82,29 +79,35 @@ class User(UserMixin):
     name = None
 
     def get(user_id):
-        data = users_db.get(user_id)
+        cond = 'user_id = ' + user_id
+        found_user = sql_df('user_id, username', 'users', cond)
 
-        if data:
-            print("Entro")
-            return User(
-                username=data['username'],
-                id=user_id
-            )
 
-        return None
+        if found_user.empty:
+            return None
+        
+        return User(
+            id=user_id,
+            username=found_user.iloc[0]['username']
+        )
+
+
     
     def from_username(username,pw):
-        for id in users_db:
-            nome_atual = users_db[id]["username"]
-            senha_atual = users_db[id]["pw"]
-            
-            if nome_atual == username:
-                if senha_atual == pw:
-                    return User.get(id)
-                return None
-            
-        return None
+        cond = '(username = \'' + username + '\') AND (pw = \'' + pw + '\')'
+        #print("my cond",cond)
+        found_user = sql_df('*', 'users', cond)
+        #print("-+-"*30)
+        found_id = found_user.index[0]
+        #print(found_user)
+        #print("my id = ", found_id)
 
+        if len(found_user.index) == 1:
+            return User(
+                username=username,
+                id=found_id
+            )
+        return None
 
 # ----- LOGIN ----- #
 login_manager = LoginManager()
@@ -116,11 +119,14 @@ def load_user(user_id):
 
 # ----- FUNCTION WRAPPER ----- #
 
-def render_template_w(link):
+def render_template_w(link, df=None):
+    # df é um dataframe recebido pela pagina.
+    # Devemos tomar cuidado com qual dataframe é pareado com qual página!
     if current_user.is_authenticated:
-        return render_template(link, person=current_user.name,is_logged=current_user.is_authenticated)
+        return render_template(link, df=df, person=current_user.name,is_logged=current_user.is_authenticated)
     else:
-        return render_template(link, is_logged=current_user.is_authenticated)
+        return render_template(link, df=df, is_logged=current_user.is_authenticated)
+
 
 # ----- FORMS ----- #
 class LoginForm(FlaskForm):
@@ -180,6 +186,18 @@ def logout():
 def profile(username):
     return f"{escape(username)}'s page."
 
+@app.route("/anuncios")
+def anuncios():
+    link = "anuncios.html"
+
+    # Query de todos os anuncios
+    col = "*"
+    table = "anuncios"
+    cond = ''
+    results = make_sql(col=col,table=table, cond=cond) #SELECT a FROM b;
+    print("All anuncios:", results)
+
+    return render_template_w('anuncios.html', df=results,is_logged=current_user.is_authenticated)
 
 '''@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
