@@ -21,12 +21,37 @@ import pandas as pd
     * Populador do BD automatico para qnd precisar reiniciar
     * Fazer forms de criar venda funcionar
     * Mudar preco no db para ser integer, nao quero gente fazendo 0.99 nos preços.
+    * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
+    * Fazer filtros por query SQL!
+    * Página de novos
+    * Implementar data de expiração de anuncio
+    * Só mostrar não vendidos
+    * Página individual do anuncio:
+        * Só pode ver contato com login
+        * Se for o mesmo user que criou, pode editar e botar como vendido ou cancelado
+        * Ver todas as fotos (max 10). Não pode tirar fotos ou colocar novas fotos.
+    * Add fotos no form.
+    * Mostrar foto principal no card.
+    * Avisar que primeira foto será a foto principal do card.
+    * Várias páginas de busca (escolher pag 1, 2, 3) e o link mudar. site/filtros/condicao=tal/2
 
-
+    
+    * Adicionar campo "cores" e "padroes" tlvz? segunda versão do site.
     * Ver como ver cpf na receita federal (manual), lembrar de falar que o site NUNCA usará seus dados nem nome e só vai ser visto manualmente
     * Lembrar usuario que é um site pequeno mal feito logo precisa ser uma senha diferente pois é vuneravel
     * Chamar 3 pessoas e fazer primeiras vendas p/ atrair pessoas.
+    * Página de user
+    * Reputação
+    * Lista de tamanhos
 
+JA IMPLEMENTADO
+    * Forms de criar anuncios (só UI, sem backend)
+    * Página frontal (simples)
+    * Login mas não da pra criar user ainda
+    * Páginas e partes bloqueadas sem login, lembrete de login
+    * Db projetado
+    * Listas base de tags e estilos e peças
+    * Logout
 
 '''
 
@@ -38,6 +63,7 @@ lista_estilos = [a,b]
 lista_tags = ["pasteis","monocromatico"]
 lista_pecas = [a,b]
 lista_marcas = ["bodyline","lisliza"]
+lista_status = ["Ativo", "Vendido", "Expirado"]
 
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
