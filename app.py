@@ -14,7 +14,6 @@ import pandas as pd
 # -----------------
 '''
     * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
-    * Ver um login seguro
     * Forms de criar usuário
     * forms criar usuario precisa inserir usuario desativado
     * Mudar o BD para as especificacoes novas do arquivo sql
@@ -35,8 +34,9 @@ import pandas as pd
     * Avisar que primeira foto será a foto principal do card.
     * Várias páginas de busca (escolher pag 1, 2, 3) e o link mudar. site/filtros/condicao=tal/2
     * Add nos dominios reais
-    * botar servidor p rodar em pc
+    * botar servidor p rodar em pc 
 
+SECUNDARIO
     
     * Adicionar campo "cores" e "padroes" tlvz? segunda versão do site.
     * Ver como ver cpf na receita federal (manual), lembrar de falar que o site NUNCA usará seus dados nem nome e só vai ser visto manualmente
@@ -45,6 +45,8 @@ import pandas as pd
     * Página de user
     * Reputação
     * Lista de tamanhos
+    * Pagina de artistas hehe
+    * Ver um login seguro
 
 JA IMPLEMENTADO
     * Forms de criar anuncios (só UI, sem backend)
@@ -67,6 +69,34 @@ lista_tags = ["pasteis","monocromatico"]
 lista_pecas = [a,b]
 lista_marcas = ["bodyline","lisliza"]
 lista_status = ["Ativo", "Vendido", "Expirado"]
+lista_estados = ['AC',
+                'AL',
+                'AP',
+                'AM',
+                'BA',
+                'CE',
+                'DF',
+                'ES',
+                'GO',
+                'MA',
+                'MS',
+                'MT',
+                'MG',
+                'PA',
+                'PB',
+                'PR',
+                'PE',
+                'PI',
+                'RJ',
+                'RN',
+                'RS',
+                'RO',
+                'RR',
+                'SC',
+                'SP',
+                'SE',
+                'TO',
+                ]
 
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
@@ -225,9 +255,19 @@ def render_template_w(link, df_header=None, df_values=None):
 
 
 # ----- FORMS ----- #
+#Login
 class LoginForm(FlaskForm):
     username = StringField("Nome de usuário", validators=[DataRequired()])
     pw = PasswordField("Senha", validators=[DataRequired()])
+    submit = SubmitField("Entrar")
+
+#Criar conta
+class CreateUserForm(FlaskForm):
+    cpf = IntegerField("CPF", validators=[DataRequired()])
+    username = StringField("Nome de usuário", validators=[DataRequired()])
+    pw = PasswordField("Senha", validators=[DataRequired()])
+    contato = StringField("Contato (email, whatsapp, instagram...)", validators=[DataRequired()])
+    estado = SelectField("Estado", choices=lista_estados)
     submit = SubmitField("Entrar")
 
 # Import dos docs de wtfforms
