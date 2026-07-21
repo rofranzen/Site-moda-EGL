@@ -69,6 +69,8 @@ lista_tags = ["pasteis","monocromatico"]
 lista_pecas = [a,b]
 lista_marcas = ["bodyline","lisliza"]
 lista_status = ["Ativo", "Vendido", "Expirado"]
+
+# Fonte estados https://gist.github.com/edirpedro/69c0974613de044ebba6dc7fd0c5b732
 lista_estados = ['AC',
                 'AL',
                 'AP',
@@ -181,20 +183,48 @@ def sql_df(col,table,cond=None, join=None, test =False):
 
 # INSERT INTO users (id,name,contact) VALUES (id_value,name_value,contact_value...)
 
-def insert(table,values,test=False):
+def insert(table,values,col='',test=False):
     # %% atualizar depois, devo fazer um dicionario para que os valores nao troquem de lugar.
     # Ex: recebe dicionario com keys do campo a inserir...
+    if test:
+        print('*-'*40)
 
-    query = 'INSERT INTO ' + table + ' VALUES ('+ values + ');'
+    # Values é sempre uma lista por enquanto!
+    values_str = ""
+    for value in values:
+        if test:
+            print(value)
+        values_str += '\'' + value + '\','
+    values_str = values_str[:-1] #Tira a ultima virgula
+    
+    if test:
+        print("Values_str:",values_str)
+
+    query = 'INSERT INTO ' + table + col + ' VALUES ('+ values_str + ')'
+    query += " RETURNING " + table[:-1] + "_id;"
+    # Vai usar o return pra ver se funcionou
 
     if test:
         print("A query pedida:")
         print(query)
 
-    cur.execute(query)
+    try:
 
-    if test:
-        print("Acabou o insert! Deu tudo certo.")
+        cur.execute(query)
+        conn.commit()
+        # Pega o id novo!
+        suceeded = cur.fetchone()[0]
+
+        if test:
+            print("Acabou o insert! Deu tudo certo.")
+            print("ID =", suceeded)
+
+        return True
+    except Exception as e:
+        if test:
+            print("O insert acabou e errou...")
+            print("Excessão", e)
+        return False
 
 # ----- USER CLASS ----- #
 class User(UserMixin):
@@ -253,7 +283,6 @@ def render_template_w(link, df_header=None, df_values=None):
     else:
         return render_template(link, header=df_header, values=df_values, is_logged=current_user.is_authenticated)
 
-
 # ----- FORMS ----- #
 #Login
 class LoginForm(FlaskForm):
@@ -295,26 +324,18 @@ class CreateSaleForm(FlaskForm):
 
     submit = SubmitField("Criar venda")
 
-
 # ----------------- #
 #       ROUTES      #
 # ----------------- #
 
-# ----- LOGIN ----- #
-
+# ----------- #
+#    LOGIN    #
+# ----------- #
 @app.route("/login", methods=['GET','POST'])
 def login_page():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     return render_template('login.html',form=LoginForm())
-
-@app.route("/logintest", methods=['GET','POST'])
-def login_test():
-    return render_template('logintestold.html', form=LoginForm())
-
-@app.route('/')
-def index(name=None):
-    return render_template_w('index.html')
 
 @app.route('/passing', methods=['GET', 'POST'])
 def submit():
@@ -330,22 +351,60 @@ def submit():
             return redirect(url_for('index'))
     return redirect(url_for('login_page'))
 
-@app.route('/logged')
-@login_required
-def logged():
-    username = current_user.username
-    password = "*****"
-    return render_template('logged.html', username=username, pw=password)
-
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+# ----------------- #
+#    CRIAR CONTA    #
+# ----------------- #
+@app.route("/criar_usuario")
+def criar_usuario():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    # Has to be wrapper func so it gets authenticated status == unlogged
+    return render_template("criar_usuario.html", form=CreateUserForm())
+
+@app.route("/passing_user_create", methods=['GET', 'POST'])
+def passing_create_user():
+    form = CreateUserForm()
+    if form.validate_on_submit():
+
+        cpf = str(form.cpf.data)
+        username = form.username.data
+        pw = form.pw.data
+        contato = form.contato.data
+        estado_sigla = form.estado.data
+        ativado = str(False)
+
+        table = "users"
+        col = "(cpf,username,pw,contato,estado_sigla,ativado)"
+        values = [cpf,username,pw,contato,estado_sigla,ativado]
+
+        user_was_inserted = insert(table=table,col=col,values=values)
+        if user_was_inserted:
+            return render_template("conta_criada.html")
+    return redirect(url_for('criar_usuario'))
+
+
+# ---------- #
+# HOME INDEX #
+# ---------- #
+
+@app.route('/')
+def index(name=None):
+    return render_template_w('index.html')
+
+
 @app.route("/user/<username>")
 def profile(username):
     return f"{escape(username)}'s page."
+
+# -------- #
+# ANUNCIOS #
+# -------- #
 
 @app.route("/anuncios")
 def anuncios():
