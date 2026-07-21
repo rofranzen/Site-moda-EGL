@@ -444,5 +444,9 @@ def upload_file():
     return "Venda postada"'''
 
 
+@app.route("/placeholder")
+def placeholder():
+    return render_template("placeholder_site.html")
+
 if __name__ == "__main__":
     app.run(debug=True)

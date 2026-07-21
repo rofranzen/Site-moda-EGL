@@ -48,13 +48,13 @@ CREATE TABLE anuncios(
 	anuncio_id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) NOT NULL,
 	status VARCHAR(10) NOT NULL,
-	data_postado DATE,
 	trocas BOOL NOT NULL,
 	defeito BOOL NOT NULL,
 	preco DECIMAL(5,2) NOT NULL,
 	descricao TEXT,
 
 	usuario INTEGER NOT NULL,
+	data_ativado DATE NOT NULL,
 
 	tamanho INTEGER REFERENCES tamanhos(tam_id),
 	peca INTEGER REFERENCES pecas(peca_id),
