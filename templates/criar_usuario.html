@@ -11,6 +11,37 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<div class="columns">
+    <div class="column is-one-fifth"></div>
+
+    <div class="box is-three-fifths">
+        
+        <p>
+            <div class="has-text-centered">
+
+                <strong>ATENÇÃO:</strong> Sua conta será verificada <strong>manualmente</strong> pela administração.
+                <br>
+                Por isso, pedimos <strong>CPF</strong> e <strong>data de nascimento</strong>.
+                <br>
+                <br>
+            
+            </div>
+
+            <div class="has-text-justified">
+                Isso apenas serve para verificar sua existência no 
+                <a target="_blank" href="https://servicos.receita.fazenda.gov.br/servicos/cpf/consultasituacao/consultapublica.asp">
+                    site de consulta do governo,
+                </a>
+                e que uma pessoa maliciosa não tente infiltrar na comunidade com várias contas. 
+
+                <strong>NUNCA</strong> usaremos, registraremos ou citaremos seu nome legal. 
+                A administração estabelece uso exclusivo do nome social auto-declarado, mesmo se não registrado com o governo.
+            </div>
+        </p>
+    </div>
+    <div class="column is-one-fifth"></div>
+</div>
+
 <form class="box" method="POST" action="/passing_user_create">
     {{ form.hidden_tag() }}
 

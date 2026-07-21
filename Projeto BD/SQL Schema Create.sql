@@ -10,6 +10,7 @@ CREATE TABLE users(
 	username VARCHAR(50) UNIQUE NOT NULL,
 	pw VARCHAR(50) NOT NULL,
 	cpf INTEGER UNIQUE NOT NULL,
+	data_nascimento DATE NOT NULL,
 	contato VARCHAR(50) NOT NULL,
 	estado_sigla CHAR(2) REFERENCES estados(sigla)
 );

@@ -292,10 +292,17 @@ class LoginForm(FlaskForm):
 
 #Criar conta
 class CreateUserForm(FlaskForm):
-    cpf = IntegerField("CPF", validators=[DataRequired()])
-    username = StringField("Nome de usuário", validators=[DataRequired()])
-    pw = PasswordField("Senha", validators=[DataRequired()])
-    contato = StringField("Contato (email, whatsapp, instagram...)", validators=[DataRequired()])
+
+    username = StringField("Nome de usuário", validators=[DataRequired()],
+                           render_kw={"placeholder": "Ex: GothicMaria"})
+    pw = PasswordField("Senha", validators=[DataRequired()],
+                           render_kw={"placeholder": "*********"})
+    cpf = IntegerField("CPF (Apenas p/ verificar conta)", validators=[DataRequired()],
+                           render_kw={"placeholder": "Não registraremos nomes, respeitamos nome social."})
+    nascimento = DateField("Data de nascimento (Apenas p/ verificar conta)",validators=[DataRequired()],
+                           render_kw={"placeholder": "01/01/1999"})
+    contato = StringField("Contato: Email, Whatsap ou Insta", validators=[DataRequired()],
+                           render_kw={"placeholder": "Ex: email@muitolegal.com, (00) 12345-6789..."})
     estado = SelectField("Estado", choices=lista_estados)
     submit = SubmitField("Entrar")
 
@@ -372,16 +379,19 @@ def passing_create_user():
     form = CreateUserForm()
     if form.validate_on_submit():
 
+        # Supostamente o wtforms ja faz escaping
+        # Pelo oque pesquisei é verdade, esperemos que seja mesmo...
         cpf = str(form.cpf.data)
         username = form.username.data
         pw = form.pw.data
         contato = form.contato.data
         estado_sigla = form.estado.data
+        data_nascimento = form.nascimento.data
         ativado = str(False)
 
         table = "users"
-        col = "(cpf,username,pw,contato,estado_sigla,ativado)"
-        values = [cpf,username,pw,contato,estado_sigla,ativado]
+        col = "(cpf,data_nascimento,username,pw,contato,estado_sigla,ativado)"
+        values = [cpf,data_nascimento,username,pw,contato,estado_sigla,ativado]
 
         user_was_inserted = insert(table=table,col=col,values=values)
         if user_was_inserted:
