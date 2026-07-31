@@ -250,21 +250,29 @@ class User(UserMixin):
 
     
     def from_username(username,pw):
-        cond = '(username = \'' + username + '\') AND (pw = \'' + pw + '\')'
-        #print("my cond",cond)
+        #cond = '(username = \'' + username + '\') AND (pw = \'' + pw + '\')'
+        cond = "username = \'" + username + "\'"
+        print("my cond",cond)
+
         found_user = sql_df('*', 'users', cond)
+
         #print("-+-"*30)
-        found_id = found_user.index[0]
-        #print(found_user)
+        print(found_user)
         #print("my id = ", found_id)
 
         if len(found_user.index) == 1:
+            found_pw = found_user.iloc[0]['pw']
+
+            if found_pw != pw:
+                return "Senha não corresponde ao usuário."
+
+            found_id = found_user.index[0]
             return User(
                 username=username,
                 id=found_id
             )
-        return None
-
+        return "Usuário não existe."
+    
 # ----- LOGIN ----- #
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -352,10 +360,13 @@ def submit():
         password = form.pw.data
 
         user = User.from_username(username,password)
-        if user:
+
+
+        if type(user) is User:
             login_user(user)
             #return redirect(url_for('logged'))
             return redirect(url_for('index'))
+        
     return redirect(url_for('login_page'))
 
 @app.route("/logout")

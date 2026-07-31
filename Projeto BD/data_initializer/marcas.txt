@@ -1,7 +1,11 @@
+"Offbrand" "False"
 "Bodyline" "False"
 "Angelic Pretty" "False"
+"Alice Girl" "False"
 "Metamorphose" "False"
 "Lis Liza" "False"
 "Doki Doki Princess" "True"
 "Le Carrousel" "True"
-
+"Suu Hideto" "True"
+"Outra brand estrangeira" "False"
+"Outra brand nacional" "True"
