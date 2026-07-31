@@ -1,3 +1,4 @@
+"nome" "descricao"
 "Monocromático" "Apenas uma cor na peça, sem qualquer outra."
 "Pasteis" "Cores pásteis."
 "Arco-íris" "Peças focadas em terem muitas cores"

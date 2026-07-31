@@ -14,8 +14,6 @@ import pandas as pd
 # -----------------
 '''
     * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
-    * Forms de criar usuário
-    * forms criar usuario precisa inserir usuario desativado
     * Mudar o BD para as especificacoes novas do arquivo sql
     * Populador do BD automatico para qnd precisar reiniciar
     * Fazer forms de criar venda funcionar
@@ -57,6 +55,8 @@ JA IMPLEMENTADO
     * Listas base de tags e estilos e peças
     * Logout
     * Query de busca
+    * Forms de criar usuário
+    * forms criar usuario precisa inserir usuario desativado
 
 '''
 
@@ -392,12 +392,12 @@ def passing_create_user():
 
         # Supostamente o wtforms ja faz escaping
         # Pelo oque pesquisei é verdade, esperemos que seja mesmo...
-        cpf = str(form.cpf.data)
+        cpf = str(form.cpf.data) # Precisa para inserir por query
         username = form.username.data
         pw = form.pw.data
         contato = form.contato.data
         estado_sigla = form.estado.data
-        data_nascimento = form.nascimento.data
+        data_nascimento = str(form.nascimento.data)
         ativado = str(False)
 
         table = "users"

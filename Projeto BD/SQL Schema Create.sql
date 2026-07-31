@@ -17,30 +17,42 @@ CREATE TABLE users(
 
 CREATE TABLE tamanhos(
 	tam_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL
+	nome VARCHAR(50) UNIQUE NOT NULL
 );
 
 CREATE TABLE pecas(
 	peca_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL,
+	nome VARCHAR(50) UNIQUE NOT NULL,
 	descricao TEXT
 );
 
 CREATE TABLE marcas(
 	marca_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL,
+	nome VARCHAR(50) UNIQUE NOT NULL,
+	nacional BOOLEAN
+);
+
+CREATE TABLE estampas(
+	estampa_id SERIAL PRIMARY KEY,
+	nome VARCHAR(50) UNIQUE NOT NULL,
+	descricao TEXT
+);
+
+CREATE TABLE cores(
+	core_id SERIAL PRIMARY KEY,
+	nome VARCHAR(50) UNIQUE NOT NULL,
 	descricao TEXT
 );
 
 CREATE TABLE estilos(
 	estilo_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL,
+	nome VARCHAR(50) UNIQUE NOT NULL,
 	descricao TEXT
 );
 
 CREATE TABLE tags(
 	tag_id SERIAL PRIMARY KEY,
-	nome VARCHAR(20) UNIQUE NOT NULL,
+	nome VARCHAR(50) UNIQUE NOT NULL,
 	descricao TEXT
 );
 
@@ -50,7 +62,7 @@ CREATE TABLE anuncios(
 	status VARCHAR(10) NOT NULL,
 	trocas BOOL NOT NULL,
 	defeito BOOL NOT NULL,
-	preco DECIMAL(5,2) NOT NULL,
+	preco INTEGER NOT NULL,
 	descricao TEXT,
 
 	usuario INTEGER NOT NULL,

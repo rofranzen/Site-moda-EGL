@@ -1,3 +1,4 @@
+"nome" "descricao"
 "Costumizado" "Peça que foi originalmente uma encomenda de um atêlier ou costureira"
 "Duplicata estrangeira" "Peça duplicata de uma brand estrangeira, mas não original. Atenção: não comercializar duplicatas de atêlies nacionais."
 "Original" "Peça original de uma brand estrangeira, garantindo que não é duplicata. Atenção: mentir sobre isso levará a banimento."

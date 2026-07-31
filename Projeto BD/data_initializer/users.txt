@@ -1,0 +1,2 @@
+"user_id" "username" "pw" "estado_sigla" "contato" "cpf" "ativado" "data_nascimento"
+"1" "aaa" "aaa" "SP" "aaa@aaa.aaa" "123123123" "True" "01/01/0001"

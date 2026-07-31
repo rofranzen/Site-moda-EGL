@@ -1,6 +1,7 @@
+"nome" "descricao"
 "Com padrões" "Tecidos impressos com padrões ou ilustrações."
 "Floral" "Flores"
-"Print de pelo" "Padrões de pelos de animais como onçinha, zebra, tigre e vaca.
+"Print de pelo" "Padrões de pelos de animais como onçinha, zebra, tigre e vaca."
 "Imagem de animais" "Imagens de animais, não confundir com prints de pelo. Ex: coelhos andando, gatinhos em grupo, desenho de um cavalo pastando."
 "Cruz e igreja" "Cruzes, temas de estética igreja como anjos e capelas."
 "Coração" "Corações."
