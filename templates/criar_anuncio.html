@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width" />
     <title>Elegantes Goticas Lolitas</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
@@ -25,10 +26,24 @@
                 {% elif field.type == "BooleanField" %}
                     {{ field.label }} {{ field(class="booleanfield")}} 
 
+                {% elif field.type == "MultiCheckboxField" %}  
+                    {{ field.label }}
+                    <div class="tags">
+                        {% for tag in field %}
+                        <label>
+                            
+                            {{ tag(class="tag-input") }}
+                            <span  class="tag is-light is-hoverable">
+                                {{tag.label.text}}
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+
+
                 {% else %}
                 {{ field.label(class="label") }}
                 <div class="control">{{ field(class="input") }}</div>
-
                 {% endif %}
 
 

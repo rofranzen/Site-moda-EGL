@@ -1,0 +1,16 @@
+.tag-input {
+    display: none;
+}
+
+.tag-choice {
+    cursor: pointer;
+}
+
+.tag-input + .tag {
+    transition: 0.15s ease;
+}
+
+.tag-input:checked + .tag {
+    background-color: blueviolet;
+    color: white;
+}

@@ -16,7 +16,7 @@ CREATE TABLE users(
 );
 
 CREATE TABLE tamanhos(
-	tam_id SERIAL PRIMARY KEY,
+	tamanho_id SERIAL PRIMARY KEY,
 	nome VARCHAR(50) UNIQUE NOT NULL
 );
 

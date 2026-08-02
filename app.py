@@ -14,12 +14,9 @@ import datetime
 # LISTA DE AFAZERES
 # -----------------
 '''
-    * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
     * Forms de venda inserir as relações multiplas
     * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
     * Fazer filtros por query SQL!
-    * Página de novos
-    * Implementar data de expiração de anuncio
     * Só mostrar não vendidos
     * Página individual do anuncio:
         * Só pode ver contato com login
@@ -40,6 +37,8 @@ SECUNDARIO
     * Lista de tamanhos
     * Pagina de artistas hehe
     * Ver um login seguro
+    * Página de novos
+    * Implementar data de expiração de anuncio
 
 JA IMPLEMENTADO
     * Forms de criar anuncios (só UI, sem backend)
@@ -58,49 +57,14 @@ JA IMPLEMENTADO
     * Adicionar campo "cores" e "padroes"
     * Ver como ver cpf na receita federal (manual), lembrar de falar que o site NUNCA usará seus dados nem nome e só vai ser visto manualmente
     * Inicializador BD
-    * Forms de vend ainsere venda
+    * Forms de venda insere venda
+    * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
 
 '''
 
 # ----- TEMP EQUIVALENCIES ----- #
-a = "1"
-b = "2"
-lista_tam = [a,b]
-lista_estilos = [a,b]
-lista_tags = [a,b]#["pasteis","monocromatico"]
-lista_pecas = [a,b]
-lista_marcas = [a,b]#["bodyline","lisliza"]
-lista_status = ["Ativo", "Vendido", "Expirado"]
-
+# Não precisamos mais! Eba!
 # Fonte estados https://gist.github.com/edirpedro/69c0974613de044ebba6dc7fd0c5b732
-lista_estados = ['AC',
-                'AL',
-                'AP',
-                'AM',
-                'BA',
-                'CE',
-                'DF',
-                'ES',
-                'GO',
-                'MA',
-                'MS',
-                'MT',
-                'MG',
-                'PA',
-                'PB',
-                'PR',
-                'PE',
-                'PI',
-                'RJ',
-                'RN',
-                'RS',
-                'RO',
-                'RR',
-                'SC',
-                'SP',
-                'SE',
-                'TO',
-                ]
 
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
@@ -145,6 +109,7 @@ def make_sql(col,table,cond=None,join=None, test=False):
 
 # Dataframe from sql query
 def sql_df(col,table,cond=None, join=None, test =False):
+    # Se a query tiver estados, so consegue fazer com estados sozinho até agora. precisa concertar.
 
     if test:
         print("Começamos sql_df")
@@ -153,19 +118,20 @@ def sql_df(col,table,cond=None, join=None, test =False):
     data = query_res[1:]
     header = query_res[0]
 
-
     if test:
         print("Vamos transformar em df:")
-
     df = pd.DataFrame(data)
 
     if test:
         print("\nSucesso! agora é um df.")
-
+    
     if ',' in table:
         table_id = table[:table.index(',')-1] + '_id'
     else:
         table_id = table[:-1] + '_id'
+
+    if table == "estados":
+        table_id = "sigla"
 
     df.columns = header
 
@@ -179,6 +145,22 @@ def sql_df(col,table,cond=None, join=None, test =False):
         print("This is the requested df")
         print(df)
     return df
+
+def get_for_forms(table_name, test=False):    
+    df =sql_df(col="*", table=table_name)
+    nomes = df["nome"].values.tolist()
+    ids = df.index.values
+
+    tuples = []
+    for i in range(len(nomes)):
+        current = (ids[i], nomes[i])
+        tuples.append(current)
+
+    if test:
+        print("\n-----\nSelecionando tuplas de...", table_name)
+        print(tuples)
+
+    return tuples
 
 
 # ----- DB  QUERY INSERT ----- #
@@ -313,7 +295,7 @@ class CreateUserForm(FlaskForm):
                            render_kw={"placeholder": "01/01/1999"})
     contato = StringField("Contato: Email, Whatsap ou Insta", validators=[DataRequired()],
                            render_kw={"placeholder": "Ex: email@muitolegal.com, (00) 12345-6789..."})
-    estado = SelectField("Estado", choices=lista_estados)
+    estado = SelectField("Estado", choices=get_for_forms("estados"))
     submit = SubmitField("Entrar")
 
 # Import dos docs de wtfforms
@@ -333,13 +315,15 @@ class CreateSaleForm(FlaskForm):
     defeito = BooleanField("Produto com defeito?")
     preco = IntegerField("Preço (Número inteiro)",validators=[DataRequired()])
     descricao = TextAreaField("Descrição",validators=[DataRequired()])
-    tamanho = SelectField("Tamanho", choices=lista_tam)
-    peca = SelectField("Peça", choices=lista_pecas)
-    marca = SelectField("Marca", choices=lista_marcas)
-    estilos = MultiCheckboxField("Estilos", choices=lista_estilos)
-    tags = MultiCheckboxField("Tags", choices=lista_tags)
+    tamanho = SelectField("Tamanho", choices=get_for_forms("tamanhos"))
+    peca = SelectField("Peça", choices=get_for_forms("pecas"))
+    marca = SelectField("Marca", choices=get_for_forms("marcas"))
+    estilos = MultiCheckboxField("Estilos", choices=get_for_forms("estilos"))
+    tags = MultiCheckboxField("Tags", choices=get_for_forms("tags"))
 
     submit = SubmitField("Criar venda")
+
+
 
 # ----------------- #
 #       ROUTES      #
@@ -454,6 +438,8 @@ def criar_anuncio():
 @login_required
 def passing_sale_create():
     form = CreateSaleForm()
+    print(form.marca.choices)
+
     if form.validate_on_submit():
 
         nome = form.nome.data
@@ -464,8 +450,9 @@ def passing_sale_create():
         tamanho = str(form.tamanho.data)
         peca = str(form.peca.data)
         marca = str(form.marca.data)
-        estilos = form.estilos.data[0] # concertar com tabela
-        tags = form.tags.data[0]
+        #estilos = form.estilos.data[0] # concertar com tabela
+        #tags = form.tags.data[0]
+        print("essa eh a marca id ", marca)
 
         status = "Ativado"
         usuario = current_user.id
@@ -486,9 +473,11 @@ def passing_sale_create():
                 status,
                 data_ativado]
 
-        user_was_inserted = insert(table=table,col=col,values=values)
-        if user_was_inserted:
+        sale_was_inserted = insert(table=table,col=col,values=values, test=True)
+        if sale_was_inserted:
             return render_template("anuncio_criado.html")
+        else:
+            print("Anuncio falhou...")
     return redirect(url_for('criar_anuncio'))
 
 '''@app.route('/upload', methods=['GET', 'POST'])
