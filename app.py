@@ -148,6 +148,8 @@ def sql_df(col,table,cond=None, join=None, test =False):
 
 def get_for_forms(table_name, test=False):    
     df =sql_df(col="*", table=table_name)
+    df = df.sort_values("nome")
+
     nomes = df["nome"].values.tolist()
     ids = df.index.values
 
@@ -267,13 +269,13 @@ def load_user(user_id):
 
 # ----- FUNCTION WRAPPER ----- #
 
-def render_template_w(link, df_header=None, df_values=None):
+def render_template_w(link, df_header=None, df_values=None, form=None):
     # df é um dataframe recebido pela pagina.
     # Devemos tomar cuidado com qual dataframe é pareado com qual página!
     if current_user.is_authenticated:
-        return render_template(link, header=df_header, values=df_values, person=current_user.name,is_logged=current_user.is_authenticated)
+        return render_template(link, header=df_header, values=df_values, person=current_user.name,is_logged=current_user.is_authenticated, form=form)
     else:
-        return render_template(link, header=df_header, values=df_values, is_logged=current_user.is_authenticated)
+        return render_template(link, header=df_header, values=df_values, is_logged=current_user.is_authenticated, form=form)
 
 # ----- FORMS ----- #
 #Login
@@ -319,6 +321,8 @@ class CreateSaleForm(FlaskForm):
     peca = SelectField("Peça", choices=get_for_forms("pecas"))
     marca = SelectField("Marca", choices=get_for_forms("marcas"))
     estilos = MultiCheckboxField("Estilos", choices=get_for_forms("estilos"))
+    cores = MultiCheckboxField("Cores", choices=get_for_forms("cores"))
+    estampas = MultiCheckboxField("Estampas", choices=get_for_forms("estampas"))
     tags = MultiCheckboxField("Tags", choices=get_for_forms("tags"))
 
     submit = SubmitField("Criar venda")
@@ -431,7 +435,7 @@ def anuncios():
 @app.route("/criar_anuncio")
 @login_required
 def criar_anuncio():
-    return render_template('criar_anuncio.html',form=CreateSaleForm())
+    return render_template_w('criar_anuncio.html',form=CreateSaleForm())
 
 
 @app.route("/passing_sale_create", methods=['GET', 'POST'])
@@ -452,11 +456,10 @@ def passing_sale_create():
         marca = str(form.marca.data)
         #estilos = form.estilos.data[0] # concertar com tabela
         #tags = form.tags.data[0]
-        print("essa eh a marca id ", marca)
 
         status = "Ativado"
         usuario = current_user.id
-        print(current_user.id)
+        #print(current_user.id)
         data_ativado = datetime.datetime.now().strftime("%x")
 
         table = "anuncios"

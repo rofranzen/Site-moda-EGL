@@ -8,6 +8,9 @@
 
 .tag-input + .tag {
     transition: 0.15s ease;
+    outline-style: solid;
+    outline-color: blueviolet;
+    outline-width: thin;
 }
 
 .tag-input:checked + .tag {
