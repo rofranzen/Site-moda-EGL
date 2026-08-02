@@ -80,6 +80,20 @@ CREATE TABLE estilo_anuncio(
 	PRIMARY KEY(estilo,anuncio)
 );
 
+CREATE TABLE estampa_anuncio(
+	anuncio INTEGER NOT NULL REFERENCES anuncios(anuncio_id),
+	estampa INTEGER NOT NULL REFERENCES estampas(estampa_id),
+
+	PRIMARY KEY(estampa,anuncio)
+);
+
+CREATE TABLE cor_anuncio(
+	anuncio INTEGER NOT NULL REFERENCES anuncios(anuncio_id),
+	cor INTEGER NOT NULL REFERENCES cores(core_id),
+
+	PRIMARY KEY(cor,anuncio)
+);
+
 CREATE TABLE tag_anuncio(
 	anuncio INTEGER NOT NULL REFERENCES anuncios(anuncio_id),
 	tag INTEGER NOT NULL REFERENCES tags(tag_id),

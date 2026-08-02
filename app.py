@@ -14,7 +14,6 @@ import datetime
 # LISTA DE AFAZERES
 # -----------------
 '''
-    * Forms de venda inserir as relações multiplas
     * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
     * Fazer filtros por query SQL!
     * Só mostrar não vendidos
@@ -59,6 +58,7 @@ JA IMPLEMENTADO
     * Inicializador BD
     * Forms de venda insere venda
     * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
+    * Forms de venda inserir as relações multiplas
 
 '''
 
@@ -169,7 +169,7 @@ def get_for_forms(table_name, test=False):
 
 # INSERT INTO users (id,name,contact) VALUES (id_value,name_value,contact_value...)
 
-def insert(table,values,col='',test=False):
+def insert(table,values,col='',test=False, return_id=False, special_returning=False):
     # %% atualizar depois, devo fazer um dicionario para que os valores nao troquem de lugar.
     # Ex: recebe dicionario com keys do campo a inserir...
     if test:
@@ -187,8 +187,12 @@ def insert(table,values,col='',test=False):
         print("Values_str:",values_str)
 
     query = 'INSERT INTO ' + table + col + ' VALUES ('+ values_str + ')'
-    query += " RETURNING " + table[:-1] + "_id;"
-    # Vai usar o return pra ver se funcionou
+
+    if not special_returning:
+        query += " RETURNING " + table[:-1] + "_id;"
+        # Vai usar o return pra ver se funcionou
+    else:
+        query += " RETURNING " + special_returning + ";"
 
     if test:
         print("A query pedida:")
@@ -205,12 +209,38 @@ def insert(table,values,col='',test=False):
             print("Acabou o insert! Deu tudo certo.")
             print("ID =", suceeded)
 
+        if return_id:
+            return True, suceeded
         return True
     except Exception as e:
         if test:
             print("O insert acabou e errou...")
             print("Excessão", e)
+
+        if return_id:
+            return False, False
         return False
+
+# INSERÇÃO TABLEAS N:M
+def insert_n_m(table_1, table_2, items_t1, item_t2):
+    # Essa função só funciona por causa do padrão escolhido de nomes no DB.
+
+    col = "("+ table_1 + "," + table_2 + ")"
+    table_name = table_1 + "_" + table_2
+    all_items_inserted = True
+
+    for item in items_t1:
+        values = [str(item),str(item_t2)]
+
+        # O special returning é um patch.
+        # def insert não pode ignorar o returning, mas a tabela não tem pk no estilo padrão
+        # Logo ela precisa ser definida.
+
+        success = insert(table=table_name, col=col, values=values, special_returning=table_2)
+
+        if not success:
+            all_items_inserted = False
+    return all_items_inserted
 
 # ----- USER CLASS ----- #
 class User(UserMixin):
@@ -454,8 +484,11 @@ def passing_sale_create():
         tamanho = str(form.tamanho.data)
         peca = str(form.peca.data)
         marca = str(form.marca.data)
-        #estilos = form.estilos.data[0] # concertar com tabela
-        #tags = form.tags.data[0]
+        cores = form.cores.data
+        estampas = form.estampas.data
+        estilos = form.estilos.data
+        tags = form.tags.data
+
 
         status = "Ativado"
         usuario = current_user.id
@@ -476,9 +509,25 @@ def passing_sale_create():
                 status,
                 data_ativado]
 
-        sale_was_inserted = insert(table=table,col=col,values=values, test=True)
+        sale_was_inserted, anuncio_id = insert(table=table,col=col,values=values, return_id=True)
+
+        # INSERÇÃO TABLEAS N:M
         if sale_was_inserted:
-            return render_template("anuncio_criado.html")
+
+            tabelas_multiplas = [["tag", tags],
+                                 ["estilo", estilos],
+                                 ["estampa", estampas],
+                                 ["cor", cores]
+                                ]
+            table_2 = "anuncio"
+
+            for i in range(len(tabelas_multiplas)):
+                table_1 = tabelas_multiplas[i][0]
+                items_t1 = tabelas_multiplas[i][1]
+                insert_n_m(table_1=table_1, table_2=table_2, items_t1=items_t1,item_t2=anuncio_id)
+
+
+            return render_template_w("anuncio_criado.html")
         else:
             print("Anuncio falhou...")
     return redirect(url_for('criar_anuncio'))
