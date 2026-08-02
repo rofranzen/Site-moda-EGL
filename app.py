@@ -8,16 +8,14 @@ from wtforms import *
 from wtforms.validators import *
 import psycopg2
 import pandas as pd
+import datetime
 
 # -----------------
 # LISTA DE AFAZERES
 # -----------------
 '''
     * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
-    * Mudar o BD para as especificacoes novas do arquivo sql
-    * Populador do BD automatico para qnd precisar reiniciar
-    * Fazer forms de criar venda funcionar
-    * Mudar preco no db para ser integer, nao quero gente fazendo 0.99 nos preços.
+    * Forms de venda inserir as relações multiplas
     * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
     * Fazer filtros por query SQL!
     * Página de novos
@@ -35,9 +33,6 @@ import pandas as pd
     * botar servidor p rodar em pc 
 
 SECUNDARIO
-    
-    * Adicionar campo "cores" e "padroes" tlvz? segunda versão do site.
-    * Ver como ver cpf na receita federal (manual), lembrar de falar que o site NUNCA usará seus dados nem nome e só vai ser visto manualmente
     * Lembrar usuario que é um site pequeno mal feito logo precisa ser uma senha diferente pois é vuneravel
     * Chamar 3 pessoas e fazer primeiras vendas p/ atrair pessoas.
     * Página de user
@@ -57,6 +52,13 @@ JA IMPLEMENTADO
     * Query de busca
     * Forms de criar usuário
     * forms criar usuario precisa inserir usuario desativado
+    * Populador do BD automatico para qnd precisar reiniciar
+    * Mudar o BD para as especificacoes novas do arquivo sql
+    * Mudar preco no db para ser integer, nao quero gente fazendo 0.99 nos preços.
+    * Adicionar campo "cores" e "padroes"
+    * Ver como ver cpf na receita federal (manual), lembrar de falar que o site NUNCA usará seus dados nem nome e só vai ser visto manualmente
+    * Inicializador BD
+    * Forms de vend ainsere venda
 
 '''
 
@@ -65,9 +67,9 @@ a = "1"
 b = "2"
 lista_tam = [a,b]
 lista_estilos = [a,b]
-lista_tags = ["pasteis","monocromatico"]
+lista_tags = [a,b]#["pasteis","monocromatico"]
 lista_pecas = [a,b]
-lista_marcas = ["bodyline","lisliza"]
+lista_marcas = [a,b]#["bodyline","lisliza"]
 lista_status = ["Ativo", "Vendido", "Expirado"]
 
 # Fonte estados https://gist.github.com/edirpedro/69c0974613de044ebba6dc7fd0c5b732
@@ -327,8 +329,8 @@ class MultiCheckboxField(SelectMultipleField):
 
 class CreateSaleForm(FlaskForm):
     nome = StringField("Nome do produto", validators=[DataRequired()])
-    trocas = BooleanField("Aceita trocas?",validators=[DataRequired()])
-    defeito = BooleanField("Produto com defeito?",validators=[DataRequired()])
+    trocas = BooleanField("Aceita trocas?")
+    defeito = BooleanField("Produto com defeito?")
     preco = IntegerField("Preço (Número inteiro)",validators=[DataRequired()])
     descricao = TextAreaField("Descrição",validators=[DataRequired()])
     tamanho = SelectField("Tamanho", choices=lista_tam)
@@ -446,6 +448,48 @@ def anuncios():
 @login_required
 def criar_anuncio():
     return render_template('criar_anuncio.html',form=CreateSaleForm())
+
+
+@app.route("/passing_sale_create", methods=['GET', 'POST'])
+@login_required
+def passing_sale_create():
+    form = CreateSaleForm()
+    if form.validate_on_submit():
+
+        nome = form.nome.data
+        trocas = str(form.trocas.data)
+        defeito = str(form.defeito.data)
+        preco = str(form.preco.data)
+        descricao = form.descricao.data
+        tamanho = str(form.tamanho.data)
+        peca = str(form.peca.data)
+        marca = str(form.marca.data)
+        estilos = form.estilos.data[0] # concertar com tabela
+        tags = form.tags.data[0]
+
+        status = "Ativado"
+        usuario = current_user.id
+        print(current_user.id)
+        data_ativado = datetime.datetime.now().strftime("%x")
+
+        table = "anuncios"
+        col = "(nome,trocas,defeito,preco,descricao,tamanho,peca,marca,usuario,status,data_ativado)"
+        values = [nome,
+                trocas,
+                defeito,
+                preco,
+                descricao,
+                tamanho,
+                peca,
+                marca,
+                usuario,
+                status,
+                data_ativado]
+
+        user_was_inserted = insert(table=table,col=col,values=values)
+        if user_was_inserted:
+            return render_template("anuncio_criado.html")
+    return redirect(url_for('criar_anuncio'))
 
 '''@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
