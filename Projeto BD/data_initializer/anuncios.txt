@@ -1,2 +1,2 @@
-"nome" "status" "trocas" "defeito" "preco" "descricao" "usuario" "data_ativado" "tamanho" "peca" "marca"
-"JSK listrado" "Ativo" "True" "False" "110" "Não serve mais em mim" "1" "02/02/0001" "1" "1" "1"
+"anuncio_id" "nome" "status" "trocas" "defeito" "preco" "descricao" "usuario" "data_ativado" "tamanho" "peca" "marca"
+"1" "JSK listrado" "Ativo" "True" "False" "110" "Não serve mais em mim" "1" "02/02/0001" "1" "1" "1"

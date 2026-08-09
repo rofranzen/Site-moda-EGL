@@ -104,6 +104,8 @@ CREATE TABLE tag_anuncio(
 CREATE TABLE fotos(
 	foto_id SERIAL PRIMARY KEY,
 	anuncio INTEGER NOT NULL REFERENCES anuncios(anuncio_id),
-	arquivo BYTEA NOT NULL
+	arquivo BYTEA NOT NULL,
+	tipo_arquivo VARCHAR(10) NOT NULL,
+	alt_text TEXT NOT NULL
 );
 

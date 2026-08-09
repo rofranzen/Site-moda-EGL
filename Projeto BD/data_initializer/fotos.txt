@@ -1,0 +1,2 @@
+"foto_id" "anuncio" "alt_text" "arquivo" "tipo_arquivo"
+"1" "1" "Vestido lolita" "1" "jpeg"

@@ -1,15 +1,23 @@
-{% macro sales_card(header, values) %}
+{% macro sales_card(header, values, imgs) %}
 {% set ns = namespace(
+  anuncio_id = None,
   nome = "",
   peca = "",
   marca = "",
   descricao = "",
   data = "",
+  foto = None,
+  tipo_arquivo = "",
+  alt_text = ""
   )
 %}
 {% set test = False %}
 
 {% for i in range(header|length) %}
+
+  {% if header[i] == "anuncio_id" %}
+    {% set ns.anuncio_id = values[i] %}
+  {% endif %}
 
   {% if header[i] == "anuncio_nome" %}
     {% set ns.nome = values[i] %}
@@ -32,12 +40,23 @@
   {% endif %}
 {% endfor %}
 
+
+{% for index, img in imgs.iterrows() %}
+  {% if img.anuncio == ns.anuncio_id %}
+    {% set ns.foto = img.arquivo %}
+    {% set ns.tipo_arquivo = img.tipo_arquivo %}
+    {% set ns.alt_text = img.alt_text %}
+  {% endif %}
+{% endfor %}
+
 {% if test == True %}
-  Nome: {{ ns.nome }}
-  Peça: {{ ns.peca }}
-  Marca: {{ ns.marca }}
-  Descrição: {{ ns.descricao }}
-  Data: {{ ns.data }}
+  Nome: {{ ns.nome }}<br>
+  Peça: {{ ns.peca }}<br>
+  Marca: {{ ns.marca }}<br>
+  Descrição: {{ ns.descricao }}<br>
+  Data: {{ ns.data }}<br>
+  Tipo arquivo: {{ ns.tipo_arquivo }}<br>
+  Alt text: {{ ns.alt_text }}
 {% endif %}
 
 
@@ -45,8 +64,8 @@
   <div class="card-image">
     <figure class="image is-4by3">
       <img
-        src="https://bulma.io/assets/images/placeholders/1280x960.png"
-        alt="Placeholder image"
+        src="data:image/{{ ns.tipo_arquivo }};base64,{{ ns.foto }}"
+        alt="{{ ns.alt_text }}"
       />
     </figure>
   </div>

@@ -9,12 +9,14 @@ from wtforms.validators import *
 import psycopg2
 import pandas as pd
 import datetime
+import base64
 
 # -----------------
 # LISTA DE AFAZERES
 # -----------------
 '''
     * Concertar rows de anuncios no mobile
+    * Otimizar pesquisa de tables (ta tdo em so uma, performance horrivel)
     * Melhorar design card tipo tamanho dos cards e titulos
     * Fazer filtros por query SQL!
     * Só mostrar não vendidos
@@ -23,7 +25,7 @@ import datetime
         * Se for o mesmo user que criou, pode editar e botar como vendido ou cancelado
         * Ver todas as fotos (max 10). Não pode tirar fotos ou colocar novas fotos.
     * Add fotos no form.
-    * Mostrar foto principal no card.
+    * Mostrar mais que uma foto no card.
     * Avisar que primeira foto será a foto principal do card.
     * Várias páginas de busca (escolher pag 1, 2, 3) e o link mudar. site/filtros/condicao=tal/2
     * Add nos dominios reais
@@ -62,6 +64,7 @@ JA IMPLEMENTADO
     * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
     * Forms de venda inserir as relações multiplas
     * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
+    * Mostrar foto principal no card.
 
 
 '''
@@ -168,10 +171,18 @@ def get_for_forms(table_name, test=False):
 
     return tuples
 
+def photo_w(original_results):
+    # Wrap that encodes photos into base64 for jinja
+
+    def decode(item):
+        return base64.b64encode(item).decode("utf-8")
+
+    imgs = original_results.copy()
+    imgs["arquivo"] = imgs["arquivo"].apply(decode)
+
+    return imgs
 
 # ----- DB  QUERY INSERT ----- #
-
-# INSERT INTO users (id,name,contact) VALUES (id_value,name_value,contact_value...)
 
 def insert(table,values,col='',test=False, return_id=False, special_returning=False):
     # %% atualizar depois, devo fazer um dicionario para que os valores nao troquem de lugar.
@@ -179,7 +190,7 @@ def insert(table,values,col='',test=False, return_id=False, special_returning=Fa
     if test:
         print('*-'*40)
 
-    # Values é sempre uma lista por enquanto!
+    '''# Values é sempre uma lista por enquanto!
     values_str = ""
     for value in values:
         if test:
@@ -188,9 +199,9 @@ def insert(table,values,col='',test=False, return_id=False, special_returning=Fa
     values_str = values_str[:-1] #Tira a ultima virgula
     
     if test:
-        print("Values_str:",values_str)
+        print("Values_str:",values_str)'''
 
-    query = 'INSERT INTO ' + table + col + ' VALUES ('+ values_str + ')'
+    query = f'INSERT INTO {table}  {col} VALUES ( {",".join(["%s"] * len(values))} )'
 
     if not special_returning:
         query += " RETURNING " + table[:-1] + "_id;"
@@ -200,11 +211,11 @@ def insert(table,values,col='',test=False, return_id=False, special_returning=Fa
 
     if test:
         print("A query pedida:")
-        print(query)
+        print(query, (values))
 
     try:
 
-        cur.execute(query)
+        cur.execute(query, (values))
         conn.commit()
         # Pega o id novo!
         suceeded = cur.fetchone()[0]
@@ -303,13 +314,14 @@ def load_user(user_id):
 
 # ----- FUNCTION WRAPPER ----- #
 
-def render_template_w(link, df_header=None, df_values=None, form=None):
+def render_template_w(link, df_header=None, df_values=None, df_imgs=None,form=None):
     # df é um dataframe recebido pela pagina.
     # Devemos tomar cuidado com qual dataframe é pareado com qual página!
     if current_user.is_authenticated:
-        return render_template(link, header=df_header, values=df_values, person=current_user.name,is_logged=current_user.is_authenticated, form=form)
+        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, person=current_user.name,is_logged=current_user.is_authenticated, form=form)
+
     else:
-        return render_template(link, header=df_header, values=df_values, is_logged=current_user.is_authenticated, form=form)
+        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, is_logged=current_user.is_authenticated, form=form)
 
 # ----- FORMS ----- #
 #Login
@@ -478,12 +490,28 @@ def anuncios_teste():
     cond = 'anuncios.usuario = users.user_id AND ' \
     'anuncios.peca = pecas.peca_id AND ' \
     'anuncios.marca = marcas.marca_id'
+
     #print("antes d anuncios")
-    results = sql_df(col=col,table=table, cond=cond, test=True) #SELECT a FROM b;
-    print("All anuncios:", results)
+    results = sql_df(col=col,table=table, cond=cond, test=False) #SELECT a FROM b;
+    #print("All anuncios:", results)
+    #print("#-"*40)
     #print("all columns", results.columns)
 
-    return render_template_w('anuncios_teste.html', df_header=results.columns, df_values=results.values)
+    col = "foto_id, " \
+    "arquivo, " \
+    "tipo_arquivo, " \
+    "anuncio," \
+    "alt_text"
+    table = "fotos"
+    cond = ""
+    df_imgs = photo_w(sql_df(col=col,table=table, cond=cond, test=False))
+
+    
+    df_values = results.reset_index().values.tolist()
+    df_header = results.reset_index().columns.tolist()
+    df_imgs = df_imgs.reset_index()
+
+    return render_template_w('anuncios_teste.html', df_header=df_header, df_values=df_values, df_imgs=df_imgs)
 
 @app.route("/criar_anuncio")
 @login_required

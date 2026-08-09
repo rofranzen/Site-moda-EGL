@@ -17,28 +17,18 @@ def insert(table,values,col='',test=False):
     if test:
         print('*-'*40)
 
-    # Values é sempre uma lista por enquanto!
-    values_str = ""
-    for value in values:
-        if test:
-            print(value)
-        values_str += '\'' + value + '\','
-    values_str = values_str[:-1] #Tira a ultima virgula
-    
-    if test:
-        print("Values_str:",values_str)
 
-    query = 'INSERT INTO ' + table + col + ' VALUES ('+ values_str + ')'
+    query = f'INSERT INTO {table}  {col} VALUES ( {",".join(["%s"] * len(values))} )'
     #query += " RETURNING " + table[:-1] + "_id;"
     # Vai usar o return pra ver se funcionou
 
     if test:
         print("A query pedida:")
-        print(query)
+        print(query, (values))
 
     try:
 
-        cur.execute(query)
+        cur.execute(query, (values))
         conn.commit()
 
         return True
@@ -47,7 +37,7 @@ def insert(table,values,col='',test=False):
             print("O insert acabou e errou...")
             print("Excessão", e)
         return False
-    
+
 def maquina_estados(text):
     #Pega file e tira titulo e dados
 
@@ -81,7 +71,7 @@ def truncate(table):
 def populate(table):
 
     base = Path(__file__).parent
-    filename = base / f"{table}.txt"
+    filename = base / "data_initializer" / f"{table}.txt"
 
     content = ""
     with open(filename, 'r', encoding="utf-8") as f:
@@ -94,6 +84,14 @@ def populate(table):
     print("this is ", data)
     print(content[:])'''
 
+    if table == "fotos":
+        for row in data:
+            # Le a imagem de acordo com o link especificado.
+            filename = base / "data_initializer" / "fotos" / (row[title.index("arquivo")] + "." + row[title.index("tipo_arquivo")])
+            f = open(filename,'rb')
+            filedata = psycopg2.Binary( f.read() )
+            row[title.index("arquivo")] = filedata
+
     col_str = "("
     for col in title:
         col_str += col + ", "
@@ -103,12 +101,10 @@ def populate(table):
     for row in data:
         #print(row)
         
-        insert(table=table, col=col_str, values=row)
-
-
+        insert(table=table, col=col_str, values=row, test=False)
 
 # Precisa ser essa ordem!!! estados -> users -> resto -> anuncios
-tables = ["estados","users", "tags", "marcas", "tamanhos", "estilos", "pecas", "estampas", "cores","anuncios"]
+tables = ["estados","users", "tags", "marcas", "tamanhos", "estilos", "pecas", "estampas", "cores","anuncios", "fotos"]
 
 for table in tables:
     #print("Tentar... ->", table)
