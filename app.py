@@ -44,6 +44,7 @@ SECUNDARIO
     * Lidar ccom erros de formulario
     * Mudar botão de upload
     * Botar varias imagens no mesmo anuncio
+    * Mostrar pag do anuncio assim que criar
 
 JA IMPLEMENTADO
     * Forms de criar anuncios (só UI, sem backend)
@@ -367,7 +368,7 @@ class CreateSaleForm(FlaskForm):
     tamanho = SelectField("Tamanho", choices=get_for_forms("tamanhos"))
     peca = SelectField("Peça", choices=get_for_forms("pecas"))
     marca = SelectField("Marca", choices=get_for_forms("marcas"))
-    foto = FileField("Foto do produto", validators=[FileRequired(), FileAllowed(["jpg", "jpeg", "png", "gif", "webp"], "Apenas são aceitos arquivos de imagem.")])
+    foto = FileField("Foto do produto", validators=[FileRequired()])#, FileAllowed(["jpg", "jpeg", "png", "gif", "webp"], "Apenas são aceitos arquivos de imagem.")])
     estilos = MultiCheckboxField("Estilos", choices=get_for_forms("estilos"))
     cores = MultiCheckboxField("Cores", choices=get_for_forms("cores"))
     estampas = MultiCheckboxField("Estampas", choices=get_for_forms("estampas"))
@@ -531,6 +532,7 @@ def passing_sale_create():
     print(form.marca.choices)
 
     if form.validate_on_submit():
+        print("-*"*200)
 
         nome = form.nome.data
         trocas = str(form.trocas.data)
@@ -540,6 +542,7 @@ def passing_sale_create():
         tamanho = str(form.tamanho.data)
         peca = str(form.peca.data)
         marca = str(form.marca.data)
+        foto = form.foto.data #mudar para ter varias fotos dps
         cores = form.cores.data
         estampas = form.estampas.data
         estilos = form.estilos.data
@@ -568,7 +571,8 @@ def passing_sale_create():
         sale_was_inserted, anuncio_id = insert(table=table,
                                                col=col,
                                                values=values, 
-                                               return_id=True)
+                                               return_id=True,
+                                               test=False)
 
         # INSERÇÃO TABLEAS N:M
         if sale_was_inserted:
@@ -585,10 +589,19 @@ def passing_sale_create():
                 items_t1 = tabelas_multiplas[i][1]
                 insert_n_m(table_1=table_1, table_2=table_2, items_t1=items_t1,item_t2=anuncio_id)
 
+            table = "fotos"
+            col = "(arquivo,tipo_arquivo,anuncio,alt_text)"
+
+            foto_bytea = psycopg2.Binary(foto.read())
+            values = [ foto_bytea, "png", anuncio_id, "alt_text here"]
+            foto_id = insert(table="fotos",col=col,values=values,return_id=True,test=True)
+
 
             return render_template_w("anuncio_criado.html")
         else:
             print("Anuncio falhou...")
+    else:
+        print(form.errors)
     return redirect(url_for('criar_anuncio'))
 
 '''@app.route('/upload', methods=['GET', 'POST'])

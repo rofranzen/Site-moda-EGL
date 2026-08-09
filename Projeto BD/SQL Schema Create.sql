@@ -68,7 +68,7 @@ CREATE TABLE anuncios(
 	usuario INTEGER NOT NULL,
 	data_ativado DATE NOT NULL,
 
-	tamanho INTEGER REFERENCES tamanhos(tam_id),
+	tamanho INTEGER REFERENCES tamanhos(tamanho_id),
 	peca INTEGER REFERENCES pecas(peca_id),
 	marca INTEGER REFERENCES marcas(marca_id)
 );

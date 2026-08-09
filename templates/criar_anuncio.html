@@ -11,7 +11,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<form class="box" method="POST" action="/passing_sale_create">
+<form class="box" method="POST" action="/passing_sale_create" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
 
     {% for field in form %}
@@ -27,19 +27,9 @@
                     {{ field.label(class="label") }} {{ field(class="booleanfield")}} 
                 
                 {% elif field.type == "FileField" %}
-                    {{ field.label(class="label") }} {{ field(class="filefield") }}
-
-                    <div class="file">
-                        <label class="file-label">
-                            {{ field(class="file-input") }}
-                            <span class="file-cta">
-                                <span class="file-label">
-                                     📁 Escolha um arquivo de imagem.
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                        
+                    {{ field.label(class="label") }} {{ field(class="filefield")}} 
+                
+                
 
                 {% elif field.type == "MultiCheckboxField" %}  
                     {{ field.label }}

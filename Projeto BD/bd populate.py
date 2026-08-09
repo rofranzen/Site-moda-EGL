@@ -61,7 +61,16 @@ def maquina_estados(text):
             item += char
     matrix.append(line)
     return matrix
-            
+
+def reset_serial_call(table):
+
+    table_id = table[:-1] + "_id"
+    val = table + "_" + table_id + "_seq"
+    query = f"SELECT setval('{val}',(SELECT MAX({table_id}) FROM {table}));"
+    
+    cur.execute(query)
+
+        
 def truncate(table):
     query = "TRUNCATE TABLE " + table + " CASCADE;"
 
@@ -100,8 +109,10 @@ def populate(table):
 
     for row in data:
         #print(row)
-        
         insert(table=table, col=col_str, values=row, test=False)
+
+    if table != "estados":
+        reset_serial_call(table)
 
 # Precisa ser essa ordem!!! estados -> users -> resto -> anuncios
 tables = ["estados","users", "tags", "marcas", "tamanhos", "estilos", "pecas", "estampas", "cores","anuncios", "fotos"]
