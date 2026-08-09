@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from flask_login import *
 from flask_login import UserMixin
 from flask_wtf import FlaskForm
+from flask_wtf.file import *
 from wtforms import *
 from wtforms.validators import *
 import psycopg2
@@ -37,11 +38,12 @@ SECUNDARIO
     * Página de user
     * Reputação
     * Lista de tamanhos
-    * Pagina de artistas hehe
     * Ver um login seguro
     * Página de novos
     * Implementar data de expiração de anuncio
     * Lidar ccom erros de formulario
+    * Mudar botão de upload
+    * Botar varias imagens no mesmo anuncio
 
 JA IMPLEMENTADO
     * Forms de criar anuncios (só UI, sem backend)
@@ -76,6 +78,7 @@ JA IMPLEMENTADO
 # ----- SETTINGS ----- #
 app = Flask(__name__,static_url_path='/static')
 app.config["SECRET_KEY"] = "lolita"
+app.config['MAX_CONTENT_LENGTH'] = 2048 * 2048
 # CHANGE LATER, VERY SECRET!
 
 # ----- CONEXÃO PSYCOPG -----#
@@ -354,15 +357,17 @@ class MultiCheckboxField(SelectMultipleField):
     """
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
+
 class CreateSaleForm(FlaskForm):
     nome = StringField("Nome do produto", validators=[DataRequired()])
     trocas = BooleanField("Aceita trocas?")
     defeito = BooleanField("Produto com defeito?")
-    preco = IntegerField("Preço (Número inteiro)",validators=[DataRequired()])
+    preco = IntegerField("Preço (Número inteiro)",validators=[DataRequired(), NumberRange(min=0, max=1000)])
     descricao = TextAreaField("Descrição",validators=[DataRequired()])
     tamanho = SelectField("Tamanho", choices=get_for_forms("tamanhos"))
     peca = SelectField("Peça", choices=get_for_forms("pecas"))
     marca = SelectField("Marca", choices=get_for_forms("marcas"))
+    foto = FileField("Foto do produto", validators=[FileRequired(), FileAllowed(["jpg", "jpeg", "png", "gif", "webp"], "Apenas são aceitos arquivos de imagem.")])
     estilos = MultiCheckboxField("Estilos", choices=get_for_forms("estilos"))
     cores = MultiCheckboxField("Cores", choices=get_for_forms("cores"))
     estampas = MultiCheckboxField("Estampas", choices=get_for_forms("estampas"))

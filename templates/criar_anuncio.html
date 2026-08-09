@@ -24,7 +24,22 @@
                     {{ field(class="textarea", rows="4") }}
 
                 {% elif field.type == "BooleanField" %}
-                    {{ field.label }} {{ field(class="booleanfield")}} 
+                    {{ field.label(class="label") }} {{ field(class="booleanfield")}} 
+                
+                {% elif field.type == "FileField" %}
+                    {{ field.label(class="label") }} {{ field(class="filefield") }}
+
+                    <div class="file">
+                        <label class="file-label">
+                            {{ field(class="file-input") }}
+                            <span class="file-cta">
+                                <span class="file-label">
+                                     📁 Escolha um arquivo de imagem.
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                        
 
                 {% elif field.type == "MultiCheckboxField" %}  
                     {{ field.label }}
