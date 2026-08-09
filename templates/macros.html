@@ -1,0 +1,65 @@
+{% macro sales_card(header, values) %}
+{% set ns = namespace(
+  nome = "",
+  peca = "",
+  marca = "",
+  descricao = "",
+  data = "",
+  )
+%}
+{% set test = False %}
+
+{% for i in range(header|length) %}
+
+  {% if header[i] == "anuncio_nome" %}
+    {% set ns.nome = values[i] %}
+  {% endif %}
+
+  {% if header[i] == "peca_nome" %}
+    {% set ns.peca = values[i] %}
+  {% endif %}
+
+  {% if header[i] == "anuncio_descricao" %}
+    {% set ns.descricao = values[i] %}
+  {% endif %}
+
+  {% if header[i] == "marca_nome" %}
+    {% set ns.marca = values[i] %}
+  {% endif %}
+
+  {% if header[i] == "data_ativado" %}
+    {% set ns.data = values[i] %}
+  {% endif %}
+{% endfor %}
+
+{% if test == True %}
+  Nome: {{ ns.nome }}
+  Peça: {{ ns.peca }}
+  Marca: {{ ns.marca }}
+  Descrição: {{ ns.descricao }}
+  Data: {{ ns.data }}
+{% endif %}
+
+
+<div class="card">
+  <div class="card-image">
+    <figure class="image is-4by3">
+      <img
+        src="https://bulma.io/assets/images/placeholders/1280x960.png"
+        alt="Placeholder image"
+      />
+    </figure>
+  </div>
+  <div class="card-content">
+
+    <p class="title">{{ns.nome}}</p>
+    <p class="subtitle">{{ns.peca}} - {{ns.marca}}</p>
+
+    <div class="content">
+      {{ns.descricao}}
+      <br>
+      <time>{{ns.data}}</time>
+    </div>
+  </div>
+</div>
+{% endmacro %}

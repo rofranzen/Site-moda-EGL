@@ -14,7 +14,8 @@ import datetime
 # LISTA DE AFAZERES
 # -----------------
 '''
-    * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
+    * Concertar rows de anuncios no mobile
+    * Melhorar design card tipo tamanho dos cards e titulos
     * Fazer filtros por query SQL!
     * Só mostrar não vendidos
     * Página individual do anuncio:
@@ -38,6 +39,7 @@ SECUNDARIO
     * Ver um login seguro
     * Página de novos
     * Implementar data de expiração de anuncio
+    * Lidar ccom erros de formulario
 
 JA IMPLEMENTADO
     * Forms de criar anuncios (só UI, sem backend)
@@ -59,6 +61,8 @@ JA IMPLEMENTADO
     * Forms de venda insere venda
     * Chamar listas de tags a partir do bd, atualmente estão com temp equivalencies
     * Forms de venda inserir as relações multiplas
+    * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
+
 
 '''
 
@@ -313,7 +317,6 @@ class LoginForm(FlaskForm):
     username = StringField("Nome de usuário", validators=[DataRequired()])
     pw = PasswordField("Senha", validators=[DataRequired()])
     submit = SubmitField("Entrar")
-
 #Criar conta
 class CreateUserForm(FlaskForm):
 
@@ -329,7 +332,6 @@ class CreateUserForm(FlaskForm):
                            render_kw={"placeholder": "Ex: email@muitolegal.com, (00) 12345-6789..."})
     estado = SelectField("Estado", choices=get_for_forms("estados"))
     submit = SubmitField("Entrar")
-
 # Import dos docs de wtfforms
 class MultiCheckboxField(SelectMultipleField):
     """
@@ -340,7 +342,6 @@ class MultiCheckboxField(SelectMultipleField):
     """
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
-
 class CreateSaleForm(FlaskForm):
     nome = StringField("Nome do produto", validators=[DataRequired()])
     trocas = BooleanField("Aceita trocas?")
@@ -356,8 +357,6 @@ class CreateSaleForm(FlaskForm):
     tags = MultiCheckboxField("Tags", choices=get_for_forms("tags"))
 
     submit = SubmitField("Criar venda")
-
-
 
 # ----------------- #
 #       ROUTES      #
@@ -462,6 +461,30 @@ def anuncios():
 
     return render_template_w('anuncios.html', df_header=results.columns, df_values=results.values)
 
+@app.route("/anuncios_teste")
+def anuncios_teste():
+    link = "anuncios.html"
+
+    # Query de todos os anuncios
+    col = "anuncios.anuncio_id," \
+    "anuncios.nome as anuncio_nome," \
+    "anuncios.preco," \
+    "anuncios.data_ativado," \
+    "anuncios.descricao as anuncio_descricao," \
+    "users.username," \
+    "pecas.nome as peca_nome," \
+    "marcas.nome as marca_nome"
+    table = "anuncios, users, pecas, marcas"
+    cond = 'anuncios.usuario = users.user_id AND ' \
+    'anuncios.peca = pecas.peca_id AND ' \
+    'anuncios.marca = marcas.marca_id'
+    #print("antes d anuncios")
+    results = sql_df(col=col,table=table, cond=cond, test=True) #SELECT a FROM b;
+    print("All anuncios:", results)
+    #print("all columns", results.columns)
+
+    return render_template_w('anuncios_teste.html', df_header=results.columns, df_values=results.values)
+
 @app.route("/criar_anuncio")
 @login_required
 def criar_anuncio():
@@ -509,7 +532,10 @@ def passing_sale_create():
                 status,
                 data_ativado]
 
-        sale_was_inserted, anuncio_id = insert(table=table,col=col,values=values, return_id=True)
+        sale_was_inserted, anuncio_id = insert(table=table,
+                                               col=col,
+                                               values=values, 
+                                               return_id=True)
 
         # INSERÇÃO TABLEAS N:M
         if sale_was_inserted:
