@@ -45,6 +45,8 @@ SECUNDARIO
     * Mudar botão de upload
     * Botar varias imagens no mesmo anuncio
     * Mostrar pag do anuncio assim que criar
+    * Avisar quando imagem for grande demais
+    * mudar pag anuncio de obj para dict
 
 JA IMPLEMENTADO
     * Forms de criar anuncios (só UI, sem backend)
@@ -186,6 +188,9 @@ def photo_w(original_results):
 
     return imgs
 
+
+
+
 # ----- DB  QUERY INSERT ----- #
 
 def insert(table,values,col='',test=False, return_id=False, special_returning=False):
@@ -261,6 +266,49 @@ def insert_n_m(table_1, table_2, items_t1, item_t2):
             all_items_inserted = False
     return all_items_inserted
 
+# ----- ANUNCIO CLASS ----- #
+class Anuncio():
+    # Classe pega anuncio do bd por ID
+
+    def __init__(self,anuncio_id):
+        print('#-'*30)
+        print(anuncio_id)
+        cond = 'anuncio_id = ' + str(anuncio_id)
+        found_anuncio = sql_df(col='*', table='anuncios', cond=cond)
+
+        if found_anuncio.empty:
+            self.exists = False
+            return None
+        
+        self.exists = True
+        print(found_anuncio)
+        my_anuncio_singular = found_anuncio.iloc[0]
+
+        self.id = anuncio_id
+        self.nome = my_anuncio_singular['nome']
+        self.status = my_anuncio_singular['status']
+        self.preco = my_anuncio_singular['preco']
+        self.trocas = my_anuncio_singular['trocas']
+        self.defeito = my_anuncio_singular['defeito']
+        self.usuario = my_anuncio_singular['usuario']
+        self.descricao = my_anuncio_singular['descricao']
+        self.data_ativado = my_anuncio_singular['data_ativado']
+        self.tamanho = my_anuncio_singular['tamanho']
+        self.peca = my_anuncio_singular['peca']
+        self.marca = my_anuncio_singular['marca']
+
+
+        cond = 'anuncio = ' + str(anuncio_id)
+        found_foto = sql_df(col="*",table="fotos", cond=cond)
+
+        my_img = photo_w(found_foto).iloc[0]
+
+        self.arquivo = my_img['arquivo']
+        self.tipo_arquivo = my_img['tipo_arquivo']
+        self.alt_text = my_img['alt_text']
+        
+
+
 # ----- USER CLASS ----- #
 class User(UserMixin):
     def __init__(self, id, username):
@@ -307,7 +355,8 @@ class User(UserMixin):
                 id=found_id
             )
         return "Usuário não existe."
-    
+
+
 # ----- LOGIN ----- #
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -318,14 +367,14 @@ def load_user(user_id):
 
 # ----- FUNCTION WRAPPER ----- #
 
-def render_template_w(link, df_header=None, df_values=None, df_imgs=None,form=None):
+def render_template_w(link, df_header=None, df_values=None, df_imgs=None,form=None,obj=None):
     # df é um dataframe recebido pela pagina.
     # Devemos tomar cuidado com qual dataframe é pareado com qual página!
     if current_user.is_authenticated:
-        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, person=current_user.name,is_logged=current_user.is_authenticated, form=form)
+        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, person=current_user.name,is_logged=current_user.is_authenticated, form=form,obj=obj)
 
     else:
-        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, is_logged=current_user.is_authenticated, form=form)
+        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, is_logged=current_user.is_authenticated, form=form, obj=obj)
 
 # ----- FORMS ----- #
 #Login
@@ -464,8 +513,8 @@ def profile(username):
 # ANUNCIOS #
 # -------- #
 
-@app.route("/anuncios")
-def anuncios():
+@app.route("/anuncios_sql")
+def anuncios_sql():
     link = "anuncios.html"
 
     # Query de todos os anuncios
@@ -479,8 +528,8 @@ def anuncios():
 
     return render_template_w('anuncios.html', df_header=results.columns, df_values=results.values)
 
-@app.route("/anuncios_teste")
-def anuncios_teste():
+@app.route("/anuncios")
+def anuncios():
     link = "anuncios.html"
 
     # Query de todos os anuncios
@@ -518,6 +567,18 @@ def anuncios_teste():
     df_imgs = df_imgs.reset_index()
 
     return render_template_w('anuncios_teste.html', df_header=df_header, df_values=df_values, df_imgs=df_imgs)
+
+@app.route("/anuncio_singular/<id>")
+def anuncio_singular(id):
+
+    print("&-"*40)
+    print("my id =", id)
+    obj = Anuncio(id)
+    print("&-"*40)
+
+    if obj.exists:
+        return render_template_w('anuncio_singular.html',obj=obj)
+    return render_template_w('nao_existe.html')
 
 @app.route("/criar_anuncio")
 @login_required
