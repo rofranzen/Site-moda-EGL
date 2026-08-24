@@ -20,15 +20,16 @@
   Data: {{ obj.data }}<br>
   Tipo arquivo: {{ obj.tipo_arquivo }}<br>
   Alt text: {{ obj.alt_text }}
+
+  <br>
+
+  Usuario: {{obj.usuario_nome}}
+  Contato: {{obj.usuario_contato}}
+  Estado: {{obj.usuario_estado}}
 {% endif %}
 
 
 <section class="section">
-
-    <div class="box has-text-centered">
-        Oi essa é a pagina do seu anuncio.<br><br>
-        Texto placeholder.
-    </div>
 
     <div class="columns">
         <div class="column is-one-third-desktop is-full-mobile">
@@ -52,6 +53,20 @@
                 Usuario: {{obj.usuario}}<br>
                 Tamanho:{{obj.tamanho}}<br>
                 Status: {{obj.status}}<br>
+
+            </div>
+            <div class="box has-text-centered">
+
+                {% if is_logged %}
+                    Usuário: {{obj.usuario_nome}}<br>
+                    Contato: {{obj.usuario_contato}}
+
+                {% else %}
+                    Contato:<br>
+                    <strong>Você precisa de uma conta para ver contatos.</strong>
+
+                {% endif %}
+
 
             </div>
         </div>

@@ -94,6 +94,7 @@ except Exception as e:
 
 cur = conn.cursor()
 
+
 # ----- DB QUERY QUESTION ----- #
 def make_sql(col,table,cond=None,join=None, test=False):
     query = 'SELECT ' + col + ' FROM '+ table
@@ -271,8 +272,6 @@ class Anuncio():
     # Classe pega anuncio do bd por ID
 
     def __init__(self,anuncio_id):
-        print('#-'*30)
-        print(anuncio_id)
         cond = 'anuncio_id = ' + str(anuncio_id)
         found_anuncio = sql_df(col='*', table='anuncios', cond=cond)
 
@@ -281,7 +280,6 @@ class Anuncio():
             return None
         
         self.exists = True
-        print(found_anuncio)
         my_anuncio_singular = found_anuncio.iloc[0]
 
         self.id = anuncio_id
@@ -307,6 +305,21 @@ class Anuncio():
         self.tipo_arquivo = my_img['tipo_arquivo']
         self.alt_text = my_img['alt_text']
         
+    def get_owner(self):
+        if not self.exists:
+            return None
+
+        col = 'user_id, username, contato, estado_sigla'
+        table = 'users'
+        cond = 'user_id = ' + str(self.usuario)
+
+        found_owner = sql_df(col=col, table=table, cond=cond)
+
+        my_owner = found_owner.iloc[0]
+        self.usuario_nome = my_owner['username']
+        self.usuario_estado = my_owner['estado_sigla']
+        self.usuario_contato = my_owner['contato']
+
 
 
 # ----- USER CLASS ----- #
@@ -571,14 +584,16 @@ def anuncios():
 @app.route("/anuncio_singular/<id>")
 def anuncio_singular(id):
 
-    print("&-"*40)
-    print("my id =", id)
     obj = Anuncio(id)
-    print("&-"*40)
 
-    if obj.exists:
-        return render_template_w('anuncio_singular.html',obj=obj)
-    return render_template_w('nao_existe.html')
+
+    if not obj.exists:
+        return render_template_w('nao_existe.html')
+
+    if current_user.is_authenticated:
+        obj.get_owner()
+
+    return render_template_w('anuncio_singular.html',obj=obj)
 
 @app.route("/criar_anuncio")
 @login_required

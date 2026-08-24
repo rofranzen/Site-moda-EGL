@@ -59,26 +59,28 @@
   Alt text: {{ ns.alt_text }}
 {% endif %}
 
+<a href="/anuncio_singular/{{ns.anuncio_id}}">
+  <div class="card">
+    <div class="card-image">
+      <figure class="image is-4by3">
+        <img
+          src="data:image/{{ ns.tipo_arquivo }};base64,{{ ns.foto }}"
+          alt="{{ ns.alt_text }}"
+        />
+      </figure>
+    </div>
+    <div class="card-content">
 
-<div class="card">
-  <div class="card-image">
-    <figure class="image is-4by3">
-      <img
-        src="data:image/{{ ns.tipo_arquivo }};base64,{{ ns.foto }}"
-        alt="{{ ns.alt_text }}"
-      />
-    </figure>
-  </div>
-  <div class="card-content">
+      <p class="title">{{ns.nome}}</p>
+      <p class="subtitle">{{ns.peca}} - {{ns.marca}}</p>
 
-    <p class="title">{{ns.nome}}</p>
-    <p class="subtitle">{{ns.peca}} - {{ns.marca}}</p>
-
-    <div class="content">
-      {{ns.descricao}}
-      <br>
-      <time>{{ns.data}}</time>
+      <div class="content">
+        {{ns.descricao}}
+        <br>
+        <time>{{ns.data}}</time>
+      </div>
     </div>
   </div>
-</div>
+</a>
+
 {% endmacro %}
