@@ -21,12 +21,12 @@ import base64
     * Melhorar design card tipo tamanho dos cards e titulos
     * Fazer filtros por query SQL!
     * Só mostrar não vendidos
+    * Multiplas fotos no form
     * Página individual do anuncio:
-        * Só pode ver contato com login
+        * Só pode ver contato com login V
         * Se for o mesmo user que criou, pode editar e botar como vendido ou cancelado
         * Ver todas as fotos (max 10). Não pode tirar fotos ou colocar novas fotos.
-    * Add fotos no form.
-    * Mostrar mais que uma foto no card.
+        
     * Avisar que primeira foto será a foto principal do card.
     * Várias páginas de busca (escolher pag 1, 2, 3) e o link mudar. site/filtros/condicao=tal/2
     * Add nos dominios reais
@@ -70,6 +70,10 @@ JA IMPLEMENTADO
     * Forms de venda inserir as relações multiplas
     * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
     * Mostrar foto principal no card.
+    * Add fotos no form.
+
+    * Página individual do anuncio:
+        * Só pode ver contato com login
 
 
 '''
@@ -190,8 +194,6 @@ def photo_w(original_results):
     return imgs
 
 
-
-
 # ----- DB  QUERY INSERT ----- #
 
 def insert(table,values,col='',test=False, return_id=False, special_returning=False):
@@ -267,6 +269,34 @@ def insert_n_m(table_1, table_2, items_t1, item_t2):
             all_items_inserted = False
     return all_items_inserted
 
+
+# ------------------------------------------- #
+#                                             #
+#         INICIALIZAÇÃO DICIONARIOS           #
+#                                             #
+# ------------------------------------------- #
+
+tables = ['pecas',
+          'tamanhos',
+          'marcas',
+          'estampas',
+          'tags',
+          'estilos',
+          'cores'
+          ]
+
+def create_master_reference():
+    dic = {}
+
+    for table in tables:
+        col = table[:-1] + '_id, nome'
+        dic[table] = sql_df(table=table, col=col).to_dict()["nome"]
+
+    return dic
+
+dic = create_master_reference()
+
+
 # ----- ANUNCIO CLASS ----- #
 class Anuncio():
     # Classe pega anuncio do bd por ID
@@ -284,16 +314,18 @@ class Anuncio():
 
         self.id = anuncio_id
         self.nome = my_anuncio_singular['nome']
-        self.status = my_anuncio_singular['status']
         self.preco = my_anuncio_singular['preco']
-        self.trocas = my_anuncio_singular['trocas']
-        self.defeito = my_anuncio_singular['defeito']
         self.usuario = my_anuncio_singular['usuario']
         self.descricao = my_anuncio_singular['descricao']
         self.data_ativado = my_anuncio_singular['data_ativado']
+
         self.tamanho = my_anuncio_singular['tamanho']
         self.peca = my_anuncio_singular['peca']
         self.marca = my_anuncio_singular['marca']
+        
+        self.status = my_anuncio_singular['status']
+        self.trocas = my_anuncio_singular['trocas']
+        self.defeito = my_anuncio_singular['defeito']
 
 
         cond = 'anuncio = ' + str(anuncio_id)
@@ -319,6 +351,34 @@ class Anuncio():
         self.usuario_nome = my_owner['username']
         self.usuario_estado = my_owner['estado_sigla']
         self.usuario_contato = my_owner['contato']
+
+    def status_text(self):
+        if self.status:
+            return "Disponível"
+        return "Fechado"
+
+    def defeito_text(self):
+        if self.defeito:
+            return "Sim"
+        return "Não"
+    
+    def trocas_text(self):
+        if self.trocas:
+            return "Sim"
+        return "Não"
+
+    def peca_text(self):
+        return dic["pecas"][self.peca]
+
+    def tamanho_text(self):
+            return dic["tamanhos"][self.tamanho]
+
+    def marca_text(self):
+            return dic["marcas"][self.marca]
+    
+
+
+
 
 
 

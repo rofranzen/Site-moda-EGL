@@ -4,6 +4,8 @@
     <meta name="viewport" content="width=device-width" />
     <title>Elegantes Goticas Lolitas</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 <body>
 
@@ -48,19 +50,27 @@
                         <strong>
                             <p class="is-size-3"> {{obj.nome}}</p>
 
-                            <div class="columns pb-3" style="color: orchid">
+                            <div class="columns" style="color: orchid">
                                 <div class="column">
-                                    {{obj.marca}}
+                                    {{obj.marca_text()}}
                                 </div>
                                 <div class="column has-text-right">
-                                    {{obj.tamanho}}
+                                    {{obj.tamanho_text()}}
                                 </div>
 
                             </div>
                         </strong>
 
-                        <div label="line" style="border-bottom:  solid thin thistle;"></div>
-                    
+                        <div class="pb-3 pt-3">
+                            <div label="line" style="border-bottom:  solid thin thistle;"></div>
+                        </div>
+
+                        <strong>Defeitos:
+                        <div class="tag" style="background: rgb(236, 220, 236); outline: solid thin orchid;">
+                            {{obj.defeito_text()}}
+                        </div>
+                        </strong>
+
                         <div class="pt-3 pb-3">
                             {{obj.descricao}}
                         </div>
@@ -85,14 +95,14 @@
 
                                 <div class="column is-half">
                                     <div style="border-left: solid thin thistle">
-                                        {{obj.trocas}}
+                                        {{obj.trocas_text()}}
                                     </div>
                                     
                                 </div>
                             </div>
                         </div>
 
-                        <p class="is-size-5" style="color: orchid;"> {{obj.status}} </p>
+                        <p class="is-size-5" style="color: orchid;"> {{obj.status_text()}} </p>
 
                         <div class="pb-4 pt-4">
                             <div label="line" style="border-bottom:  solid thin thistle;"></div>
@@ -106,7 +116,6 @@
 
                         {% else %}
                             <strong>Você precisa de uma conta para ver contatos.</strong>
-
                         {% endif %}
                     </div>
                 </div>
@@ -114,15 +123,9 @@
             </div>
             <div class="box has-text-centered">
 
-                {% if is_logged %}
-                    Usuário: {{obj.usuario_nome}}<br>
-                    Contato: {{obj.usuario_contato}}
-
-                {% else %}
-                    Contato:<br>
-                    <strong>Você precisa de uma conta para ver contatos.</strong>
-
-                {% endif %}
+                <p class="is-size-7">
+                    Informações extra: {{obj.peca_text()}}
+                </p>
 
 
             </div>

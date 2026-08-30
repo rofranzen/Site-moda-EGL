@@ -71,14 +71,24 @@
     </div>
     <div class="card-content">
 
-      <p class="title">{{ns.nome}}</p>
-      <p class="subtitle">{{ns.peca}} - {{ns.marca}}</p>
+      <p class="title is-size-6 pb-2">
+        {% if ns.nome|length > 20 %}
+          {{ns.nome[:17]}}...
+        {% else %}
+          {{ns.nome}}
+        {% endif %}
 
-      <div class="content">
-        {{ns.descricao}}
-        <br>
-        <time>{{ns.data}}</time>
+      </p>
+      <p class="subtitle is-size-6">{{ns.marca}}</p>
+
+      <div class="pb-1">
+        <div label="line" style="border-bottom:  solid thin thistle;"></div>
       </div>
+
+      <p class="has-text-centered">
+        <time>{{ns.data}}</time>
+      </p>
+      
     </div>
   </div>
 </a>

@@ -17,3 +17,7 @@
     background-color: blueviolet;
     color: white;
 }
+
+.column .card{
+    height: 100%;
+}
