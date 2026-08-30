@@ -43,16 +43,73 @@
         </div>
         <div class="column is-full-mobile">
             <div class="box">
-                Nome: {{obj.nome}}<br>
-                Descricao: {{obj.descricao}}<br>
-                Preco: {{obj.preco}}<br>
-                Peca: {{obj.peca}}<br>
-                Marca: {{obj.marca}}<br>
-                Defeito: {{obj.defeito}}<br>
-                Trocas: {{obj.trocas}}<br>
-                Usuario: {{obj.usuario}}<br>
-                Tamanho:{{obj.tamanho}}<br>
-                Status: {{obj.status}}<br>
+                <div class="columns">
+                    <div class="column is-two-thirds">
+                        <strong>
+                            <p class="is-size-3"> {{obj.nome}}</p>
+
+                            <div class="columns pb-3" style="color: orchid">
+                                <div class="column">
+                                    {{obj.marca}}
+                                </div>
+                                <div class="column has-text-right">
+                                    {{obj.tamanho}}
+                                </div>
+
+                            </div>
+                        </strong>
+
+                        <div label="line" style="border-bottom:  solid thin thistle;"></div>
+                    
+                        <div class="pt-3 pb-3">
+                            {{obj.descricao}}
+                        </div>
+                        
+                        </div>
+
+                    
+                    <div class="column is-one-third has-text-centered" style="border-left:  solid thistle;">
+                        <div class="box pt-1 pb-1">
+                            <p class="is-size-9" style="display: inline">R$</p>
+                            <p class="is-size-2" style="display: inline">{{obj.preco}}</p>
+
+                            <div class="pb-1">
+                                <div label="line" style="border-bottom:  solid thin thistle;"></div>
+                            </div>
+
+                            <div class="columns has-text-centered">
+                                <div class="column is-half ">
+                                    Trocas
+                                </div>
+
+
+                                <div class="column is-half">
+                                    <div style="border-left: solid thin thistle">
+                                        {{obj.trocas}}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="is-size-5" style="color: orchid;"> {{obj.status}} </p>
+
+                        <div class="pb-4 pt-4">
+                            <div label="line" style="border-bottom:  solid thin thistle;"></div>
+                        </div>
+                        
+                        <p class="pb-1 is-size-7">Informações de compra</p>
+                        
+                        {% if is_logged %}
+                            <strong>Usuário:</strong> {{obj.usuario_nome}}<br>
+                            <strong>Contato:</strong> {{obj.usuario_contato}}
+
+                        {% else %}
+                            <strong>Você precisa de uma conta para ver contatos.</strong>
+
+                        {% endif %}
+                    </div>
+                </div>
 
             </div>
             <div class="box has-text-centered">
