@@ -17,11 +17,10 @@ import base64
 # -----------------
 '''
     * Concertar rows de anuncios no mobile
-    * Otimizar pesquisa de tables (ta tdo em so uma, performance horrivel)
-    * Melhorar design card tipo tamanho dos cards e titulos
     * Fazer filtros por query SQL!
     * Só mostrar não vendidos
     * Multiplas fotos no form
+
     * Página individual do anuncio:
         * Só pode ver contato com login V
         * Se for o mesmo user que criou, pode editar e botar como vendido ou cancelado
@@ -29,10 +28,12 @@ import base64
         
     * Avisar que primeira foto será a foto principal do card.
     * Várias páginas de busca (escolher pag 1, 2, 3) e o link mudar. site/filtros/condicao=tal/2
+    
     * Add nos dominios reais
     * botar servidor p rodar em pc 
 
 SECUNDARIO
+    * Melhorar design card tipo tamanho dos cards e titulos
     * Lembrar usuario que é um site pequeno mal feito logo precisa ser uma senha diferente pois é vuneravel
     * Chamar 3 pessoas e fazer primeiras vendas p/ atrair pessoas.
     * Página de user
@@ -71,6 +72,7 @@ JA IMPLEMENTADO
     * Formatar pagina de anuncios p mostrar cards bonitinhos bulma
     * Mostrar foto principal no card.
     * Add fotos no form.
+    * Otimizar pesquisa de tables (tava tdo em so uma, performance horrivel)
 
     * Página individual do anuncio:
         * Só pode ver contato com login
@@ -515,7 +517,8 @@ class CreateSaleForm(FlaskForm):
 
     submit = SubmitField("Criar venda")
 
-#class SearchSalesForm(FlaskForm):
+class SearchSalesForm(FlaskForm):
+    
 
 
 # ----------------- #
