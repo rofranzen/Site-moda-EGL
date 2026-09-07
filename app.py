@@ -33,6 +33,7 @@ import base64
     * botar servidor p rodar em pc 
 
 SECUNDARIO
+    * Substituir os possiveis status em dicionarios p nao confundir no programa
     * Melhorar design card tipo tamanho dos cards e titulos
     * Lembrar usuario que é um site pequeno mal feito logo precisa ser uma senha diferente pois é vuneravel
     * Chamar 3 pessoas e fazer primeiras vendas p/ atrair pessoas.
@@ -298,6 +299,14 @@ def create_master_reference():
 
 dic = create_master_reference()
 
+query="SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'anuncios';"
+cur.execute(query)
+result = cur.fetchall()
+
+sale_search_fields = []
+for tuples in result:
+    sale_search_fields.append(tuples[0])
+
 
 # ----- ANUNCIO CLASS ----- #
 class Anuncio():
@@ -518,7 +527,7 @@ class CreateSaleForm(FlaskForm):
     submit = SubmitField("Criar venda")
 
 class SearchSalesForm(FlaskForm):
-    
+    campo = SelectField("Campo de pesquisa", choices=sale_search_fields)
 
 
 # ----------------- #
@@ -643,8 +652,10 @@ def anuncios():
     "marcas.nome as marca"
     table = "anuncios, pecas, marcas"
     cond = 'anuncios.peca = pecas.peca_id AND ' \
-    'anuncios.marca = marcas.marca_id'
-
+    'anuncios.marca = marcas.marca_id AND ' \
+    'anuncios.status = \'Ativo\' ' \
+    
+    'ORDER BY data_ativado DESC'
 
     #print("antes d anuncios")
     results = sql_df(col=col,table=table, cond=cond, test=False) #SELECT a FROM b;
@@ -708,7 +719,7 @@ def passing_sale_create():
         tags = form.tags.data
 
 
-        status = "Ativado"
+        status = "Ativo"
         usuario = current_user.id
         #print(current_user.id)
         data_ativado = datetime.datetime.now().strftime("%x")

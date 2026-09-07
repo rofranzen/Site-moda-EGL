@@ -1,3 +1,4 @@
 "anuncio_id" "nome" "status" "trocas" "defeito" "preco" "descricao" "usuario" "data_ativado" "tamanho" "peca" "marca"
 "1" "JSK listrado" "Ativo" "True" "False" "110" "Não serve mais em mim" "1" "02/02/0001" "1" "1" "1"
 "2" "Hello Kitty dress" "Ativo" "True" "False" "110" "Não serve não" "1" "02/02/0001" "1" "1" "1"
+"3" "Should be disabled" "Vendido" "True" "False" "110" "Não serve não" "1" "02/02/0001" "1" "1" "1"
