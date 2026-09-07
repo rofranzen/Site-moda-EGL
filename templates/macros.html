@@ -1,92 +1,45 @@
-{% macro sales_card(header, values, imgs) %}
-{% set ns = namespace(
-  anuncio_id = None,
-  nome = "",
-  peca = "",
-  marca = "",
-  descricao = "",
-  data = "",
-  foto = None,
-  tipo_arquivo = "",
-  alt_text = ""
-  )
-%}
+{% macro sales_card(item) %}
 {% set test = False %}
 
-{% for i in range(header|length) %}
-
-  {% if header[i] == "anuncio_id" %}
-    {% set ns.anuncio_id = values[i] %}
-  {% endif %}
-
-  {% if header[i] == "anuncio_nome" %}
-    {% set ns.nome = values[i] %}
-  {% endif %}
-
-  {% if header[i] == "peca_nome" %}
-    {% set ns.peca = values[i] %}
-  {% endif %}
-
-  {% if header[i] == "anuncio_descricao" %}
-    {% set ns.descricao = values[i] %}
-  {% endif %}
-
-  {% if header[i] == "marca_nome" %}
-    {% set ns.marca = values[i] %}
-  {% endif %}
-
-  {% if header[i] == "data_ativado" %}
-    {% set ns.data = values[i] %}
-  {% endif %}
-{% endfor %}
-
-
-{% for index, img in imgs.iterrows() %}
-  {% if img.anuncio == ns.anuncio_id %}
-    {% set ns.foto = img.arquivo %}
-    {% set ns.tipo_arquivo = img.tipo_arquivo %}
-    {% set ns.alt_text = img.alt_text %}
-  {% endif %}
-{% endfor %}
-
 {% if test == True %}
-  Nome: {{ ns.nome }}<br>
-  Peça: {{ ns.peca }}<br>
-  Marca: {{ ns.marca }}<br>
-  Descrição: {{ ns.descricao }}<br>
-  Data: {{ ns.data }}<br>
-  Tipo arquivo: {{ ns.tipo_arquivo }}<br>
-  Alt text: {{ ns.alt_text }}
+  ID:{{item.id}}<br>
+  Nome: {{ item.nome }}<br>
+  Peça: {{ item.peca }}<br>
+  Marca: {{ item.marca }}<br>
+  Descrição: {{ item.descricao }}<br>
+  Data: {{ item.data }}<br>
+  Tipo arquivo: {{ item.tipo_arquivo }}<br>
+  Alt text: {{ item.alt_text }}
 {% endif %}
 
-<a href="/anuncio_singular/{{ns.anuncio_id}}">
+<a href="/anuncio_singular/{{item.id}}">
   <div class="card">
     <div class="card-image">
       <figure class="image is-4by3">
         <img
-          src="data:image/{{ ns.tipo_arquivo }};base64,{{ ns.foto }}"
-          alt="{{ ns.alt_text }}"
+          src="data:image/{{ item.tipo_arquivo }};base64,{{ item.arquivo }}"
+          alt="{{ item.alt_text }}"
         />
       </figure>
     </div>
     <div class="card-content">
 
       <p class="title is-size-6 pb-2">
-        {% if ns.nome|length > 20 %}
-          {{ns.nome[:17]}}...
+        {% if item.nome|length > 20 %}
+          {{item.nome[:17]}}...
         {% else %}
-          {{ns.nome}}
+          {{item.nome}}
         {% endif %}
 
       </p>
-      <p class="subtitle is-size-6">{{ns.marca}}</p>
+      <p class="subtitle is-size-6">{{item.marca}}</p>
 
       <div class="pb-1">
         <div label="line" style="border-bottom:  solid thin thistle;"></div>
       </div>
 
       <p class="has-text-centered">
-        <time>{{ns.data}}</time>
+        <time>{{item.data_ativado}}</time>
       </p>
       
     </div>

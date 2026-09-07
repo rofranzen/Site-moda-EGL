@@ -301,16 +301,24 @@ dic = create_master_reference()
 class Anuncio():
     # Classe pega anuncio do bd por ID
 
-    def __init__(self,anuncio_id):
-        cond = 'anuncio_id = ' + str(anuncio_id)
-        found_anuncio = sql_df(col='*', table='anuncios', cond=cond)
+    def __init__(self,anuncio_id=None,source_row=None):
+        # Pega o row source c prioridade
 
-        if found_anuncio.empty:
-            self.exists = False
-            return None
+        if source_row is not None:
+            my_anuncio_singular = source_row
         
+        elif anuncio_id:
+            cond = 'anuncio_id = ' + str(anuncio_id)
+            found_anuncio = sql_df(col='*', table='anuncios', cond=cond)
+
+            if found_anuncio.empty:
+                self.exists = False
+                return None
+            my_anuncio_singular = found_anuncio.iloc[0]
+            
+
+
         self.exists = True
-        my_anuncio_singular = found_anuncio.iloc[0]
 
         self.id = anuncio_id
         self.nome = my_anuncio_singular['nome']
@@ -327,10 +335,8 @@ class Anuncio():
         self.trocas = my_anuncio_singular['trocas']
         self.defeito = my_anuncio_singular['defeito']
 
-
         cond = 'anuncio = ' + str(anuncio_id)
         found_foto = sql_df(col="*",table="fotos", cond=cond)
-
         my_img = photo_w(found_foto).iloc[0]
 
         self.arquivo = my_img['arquivo']
@@ -375,12 +381,23 @@ class Anuncio():
 
     def marca_text(self):
             return dic["marcas"][self.marca]
-    
 
+    def from_df(df, test=False):
 
+        list = []
 
+        for index, row in df.iterrows():
 
+            if test:
+                print("index:",index)
+                print("iloc:",df.loc[index])
+                print("row:", row)
 
+            item = Anuncio(source_row = row, anuncio_id = index)
+            list.append(item)
+
+        return list
+        
 
 # ----- USER CLASS ----- #
 class User(UserMixin):
@@ -440,14 +457,14 @@ def load_user(user_id):
 
 # ----- FUNCTION WRAPPER ----- #
 
-def render_template_w(link, df_header=None, df_values=None, df_imgs=None,form=None,obj=None):
+def render_template_w(link, sales_list=None,df_header=None, df_values=None, df_imgs=None,form=None,obj=None):
     # df é um dataframe recebido pela pagina.
     # Devemos tomar cuidado com qual dataframe é pareado com qual página!
     if current_user.is_authenticated:
-        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, person=current_user.name,is_logged=current_user.is_authenticated, form=form,obj=obj)
+        return render_template(link, sales_list=sales_list,header=df_header, values=df_values, imgs=df_imgs, person=current_user.name,is_logged=current_user.is_authenticated, form=form,obj=obj)
 
     else:
-        return render_template(link, header=df_header, values=df_values, imgs=df_imgs, is_logged=current_user.is_authenticated, form=form, obj=obj)
+        return render_template(link, sales_list=sales_list, header=df_header, values=df_values, imgs=df_imgs, is_logged=current_user.is_authenticated, form=form, obj=obj)
 
 # ----- FORMS ----- #
 #Login
@@ -497,6 +514,9 @@ class CreateSaleForm(FlaskForm):
     tags = MultiCheckboxField("Tags", choices=get_for_forms("tags"))
 
     submit = SubmitField("Criar venda")
+
+#class SearchSalesForm(FlaskForm):
+
 
 # ----------------- #
 #       ROUTES      #
@@ -588,7 +608,7 @@ def profile(username):
 
 @app.route("/anuncios_sql")
 def anuncios_sql():
-    link = "anuncios.html"
+    template = "anuncios.html"
 
     # Query de todos os anuncios
     col = "anuncios.anuncio_id,anuncios.nome,anuncios.preco,users.username"
@@ -599,7 +619,7 @@ def anuncios_sql():
     print("All anuncios:", results)
     #print("all columns", results.columns)
 
-    return render_template_w('anuncios.html', df_header=results.columns, df_values=results.values)
+    return render_template_w('anuncios_sql.html', df_header=results.columns, df_values=results.values)
 
 @app.route("/anuncios")
 def anuncios():
@@ -607,17 +627,21 @@ def anuncios():
 
     # Query de todos os anuncios
     col = "anuncios.anuncio_id," \
-    "anuncios.nome as anuncio_nome," \
-    "anuncios.preco," \
-    "anuncios.data_ativado," \
-    "anuncios.descricao as anuncio_descricao," \
-    "users.username," \
-    "pecas.nome as peca_nome," \
-    "marcas.nome as marca_nome"
-    table = "anuncios, users, pecas, marcas"
-    cond = 'anuncios.usuario = users.user_id AND ' \
-    'anuncios.peca = pecas.peca_id AND ' \
+    "anuncios.nome as nome," \
+    "anuncios.preco as preco," \
+    "anuncios.data_ativado as data_ativado," \
+    "anuncios.descricao as descricao," \
+    "anuncios.usuario as usuario," \
+    "anuncios.tamanho as tamanho," \
+    "anuncios.status as status," \
+    "anuncios.trocas as trocas," \
+    "anuncios.defeito as defeito," \
+    "pecas.nome as peca," \
+    "marcas.nome as marca"
+    table = "anuncios, pecas, marcas"
+    cond = 'anuncios.peca = pecas.peca_id AND ' \
     'anuncios.marca = marcas.marca_id'
+
 
     #print("antes d anuncios")
     results = sql_df(col=col,table=table, cond=cond, test=False) #SELECT a FROM b;
@@ -634,18 +658,14 @@ def anuncios():
     cond = ""
     df_imgs = photo_w(sql_df(col=col,table=table, cond=cond, test=False))
 
-    
-    df_values = results.reset_index().values.tolist()
-    df_header = results.reset_index().columns.tolist()
-    df_imgs = df_imgs.reset_index()
+    sales_list = Anuncio.from_df(results)
 
-    return render_template_w('anuncios_teste.html', df_header=df_header, df_values=df_values, df_imgs=df_imgs)
+    return render_template_w('anuncios.html', sales_list=sales_list)
 
 @app.route("/anuncio_singular/<id>")
 def anuncio_singular(id):
 
-    obj = Anuncio(id)
-
+    obj = Anuncio(anuncio_id=id)
 
     if not obj.exists:
         return render_template_w('nao_existe.html')

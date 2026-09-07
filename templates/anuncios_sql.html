@@ -1,0 +1,63 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Elegantes Goticas Lolitas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+</head>
+<body>
+
+{% extends "layout.html" %}
+{% block content %}
+
+    <section class="section">
+        <p>{{ df }}</p>
+        
+        <div class="box">
+            {% if is_logged %}
+
+                <p>Fazer um anúncio novo?</p>
+                <br>
+                <a href="{{ url_for('criar_anuncio') }}">
+                    <button class="button">Criar nova venda</button>
+                </a>
+
+            {% else %}
+                <p>Você precisa estar logado para criar anúncios ou ver contatos.</p>
+                <br>
+                <a href="{{ url_for('login_page') }}">
+                    <button class="button">Login</button>
+                </a>
+            {% endif %}
+        </div>
+
+        <p>Anúncios atuais:</p>
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for title in header %}
+
+                        <th>{{title}}</th>
+
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in values %}
+                    <tr>
+                    {% for col in row %}
+                        
+                        <td>{{col}}</td>
+
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </section>
+
+{% endblock %}
+
+</body>
+</html>
