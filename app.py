@@ -18,8 +18,9 @@ import base64
 '''
     * Concertar rows de anuncios no mobile
     * Fazer filtros por query SQL!
-    * Só mostrar não vendidos
     * Multiplas fotos no form
+    * Expirar com 30 dias de anuncio
+    * Botão de indisponível
 
     * Página individual do anuncio:
         * Só pode ver contato com login V
@@ -74,6 +75,8 @@ JA IMPLEMENTADO
     * Mostrar foto principal no card.
     * Add fotos no form.
     * Otimizar pesquisa de tables (tava tdo em so uma, performance horrivel)
+    
+    * Só mostrar não vendidos
 
     * Página individual do anuncio:
         * Só pode ver contato com login
@@ -528,6 +531,24 @@ class CreateSaleForm(FlaskForm):
 
 class SearchSalesForm(FlaskForm):
     campo = SelectField("Campo de pesquisa", choices=sale_search_fields)
+    submit = SubmitField("Pesquisar")
+
+
+class LongSearchSalesForm(FlaskForm):
+    nome = StringField("Nome do produto", validators=[DataRequired()])
+    trocas = BooleanField("Aceita trocas?")
+    defeito = BooleanField("Produto com defeito?")
+    preco = IntegerField("Preço (Número inteiro)",validators=[NumberRange(min=0, max=1000)])
+    descricao = TextAreaField("Descrição",validators=[DataRequired()])
+    tamanho = SelectField("Tamanho", choices=get_for_forms("tamanhos"))
+    peca = SelectField("Peça", choices=get_for_forms("pecas"))
+    marca = SelectField("Marca", choices=get_for_forms("marcas"))
+    estilos = MultiCheckboxField("Estilos", choices=get_for_forms("estilos"))
+    cores = MultiCheckboxField("Cores", choices=get_for_forms("cores"))
+    estampas = MultiCheckboxField("Estampas", choices=get_for_forms("estampas"))
+    tags = MultiCheckboxField("Tags", choices=get_for_forms("tags"))
+
+    submit = SubmitField("Criar venda")
 
 
 # ----------------- #
